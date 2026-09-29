@@ -20,8 +20,8 @@ export default {
     { at: 'screen', t: 1.5, out: 5.45, kind: 'tag', x: 0, y: 1745, text: 'NO APP · NO SEARCHING' },
     { at: 'screen', t: 0.5, out: 5.45, kind: 'legal', y: 428, text: 'Simulated screen' },
     // the object
-    { at: 'details', t: 0.2, out: 2.15, kind: 'scrim', side: 'bottom', h: 700 },
-    { at: 'details', t: 0.25, out: 2.1, kind: 'text', y: 1330, lines: [['h2', 'Glossy PVC.'], ['sub', 'Wipes clean. Fits any table or counter.', 0.25]] },
+    { at: 'details', t: 0.2, out: 2.15, kind: 'scrim', side: 'top', h: 620 },
+    { at: 'details', t: 0.25, out: 2.1, kind: 'text', y: 300, lines: [['h2', 'Glossy PVC.'], ['sub', 'Wipes clean. Fits any table or counter.', 0.25]] },
     { at: 'details', t: 2.4, out: 4.45, kind: 'scrim', side: 'bottom', h: 700 },
     { at: 'details', t: 2.45, out: 4.4, kind: 'text', y: 1330, lines: [['h2', 'Nothing to charge.'], ['sub', 'Passive NFC. No batteries, no Wi-Fi.', 0.25]] },
     { at: 'details', t: 4.8, out: 6.75, kind: 'text', y: 250, lines: [['h3', 'Arrives programmed to'], ['h3', 'your Google review page.', 0.12]] },

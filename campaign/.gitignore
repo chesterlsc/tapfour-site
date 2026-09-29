@@ -5,3 +5,7 @@ out/
 frames/
 tools/
 *.tmp.mp4
+
+# Rendered films: previews are derived; final films are added explicitly (git add -f) once, when final
+deliverables/preview/
+deliverables/*.mp4
