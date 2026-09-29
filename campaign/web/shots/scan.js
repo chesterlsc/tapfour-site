@@ -33,6 +33,9 @@ export async function init(ctx) {
     <div style="position:absolute;left:50%;bottom:170px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font:600 12px 'Instrument Sans';display:grid;place-items:center">1×</div>`);
   ui.style.width = '100%'; ui.style.height = '100%';
   menu = ph.frame;
+  // continuity: Spanish Latte is still available here; the owner marks it sold out in the next scene
+  const latte = ph.$$('.mn__item').find(i => i.textContent.includes('Spanish Latte'));
+  latte.classList.remove('out'); const d = latte.querySelector('div'); d.innerHTML = d.innerHTML.replace('<br><span class="mn__out">SOLD OUT</span>', '');
 }
 
 export async function update(t) {
