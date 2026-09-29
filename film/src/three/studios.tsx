@@ -6,6 +6,7 @@ import { useThree } from '@react-three/fiber';
 import { Environment, Lightformer, MeshReflectorMaterial, ContactShadows } from '@react-three/drei';
 import { EffectComposer, Bloom, DepthOfField, Vignette, Noise, ToneMapping } from '@react-three/postprocessing';
 import { ToneMappingMode, BlendFunction } from 'postprocessing';
+import { Q } from './quality';
 
 /* ---------- canvas textures ---------- */
 const texCache = new Map<string, THREE.Texture>();
@@ -82,11 +83,11 @@ export const woodTex = (key: string, base = '#9a6b43', w = 1024, h = 1024, plank
 
 /* ---------- post: bloom, depth of field, grain, vignette ---------- */
 export const Post: React.FC<{ focus?: THREE.Vector3 | [number, number, number]; range?: number; bokeh?: number; bloom?: number; vignette?: number; dof?: boolean }> = ({ focus, range = 12, bokeh = 3, bloom = 0.28, vignette = 0.5, dof = true }) => {
-  const target = useMemo(() => new THREE.Vector3(), []);
-  if (focus) Array.isArray(focus) ? target.set(...focus) : target.copy(focus);
+  // A new vector every frame: R3F copies a primitive's prop into effect.target only when the reference changes.
+  const target = focus ? (Array.isArray(focus) ? new THREE.Vector3(...focus) : focus.clone()) : undefined;
   return (
-    <EffectComposer multisampling={4} enableNormalPass={false}>
-      {dof && focus ? <DepthOfField target={target} worldFocusRange={range} bokehScale={bokeh} /> : <></>}
+    <EffectComposer multisampling={Q.msaa} enableNormalPass={false}>
+      {dof && Q.dof && focus ? <DepthOfField target={target} worldFocusRange={range} bokehScale={bokeh} /> : <></>}
       <Bloom intensity={bloom} luminanceThreshold={0.97} luminanceSmoothing={0.15} mipmapBlur />
       {/* Khronos PBR Neutral: keeps UI and brand colours true below the highlight shoulder */}
       <ToneMapping mode={ToneMappingMode.NEUTRAL} />
@@ -111,11 +112,11 @@ export const DarkStudio: React.FC<{ children: React.ReactNode; glow?: number }> 
         <Lightformer form="rect" intensity={0.4} color="#ffffff" position={[0, 90, 0]} rotation-x={Math.PI / 2} scale={[80, 80, 1]} />
       </Environment>
       <ambientLight intensity={0.05} />
-      <spotLight position={[40, 70, 50]} angle={0.45} penumbra={0.9} intensity={9000} decay={2} castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0004} color="#fffdf5" />
+      <spotLight position={[40, 70, 50]} angle={0.45} penumbra={0.9} intensity={9000} decay={2} castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-bias={-0.0004} color="#fffdf5" />
       <pointLight position={[-30, 25, -40]} intensity={900} color="#c8f23c" decay={2} />
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[800, 800]} />
-        <MeshReflectorMaterial resolution={1024} blur={[120, 40]} mixBlur={0.6} mixStrength={4} mixContrast={1.2} depthScale={0} mirror={1} roughness={1} metalness={0} color="#070807" />
+        <MeshReflectorMaterial resolution={Q.refl} blur={[120, 40]} mixBlur={0.6} mixStrength={4} mixContrast={1.2} depthScale={0} mirror={1} roughness={1} metalness={0} color="#070807" />
       </mesh>
       {children}
     </>
@@ -148,7 +149,7 @@ export const LimeStudio: React.FC<{ children: React.ReactNode; back?: number }> 
         <mesh position={[0, 0, -80]}><planeGeometry args={[400, 400]} /><meshBasicMaterial color="#4a6310" /></mesh>
       </Environment>
       <hemisphereLight args={['#f4ffd8', '#8fb81a', 1.1]} />
-      <directionalLight position={[20, 60, 35]} intensity={2.6} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-40} shadow-camera-right={40} shadow-camera-top={40} shadow-camera-bottom={-40} shadow-radius={14} shadow-bias={-0.0004} color="#fffbef" />
+      <directionalLight position={[20, 60, 35]} intensity={2.6} castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-camera-left={-40} shadow-camera-right={40} shadow-camera-top={40} shadow-camera-bottom={-40} shadow-radius={14} shadow-bias={-0.0004} color="#fffbef" />
       <mesh geometry={geo} position={[0, 0, back]} rotation={[0, 0, 0]} receiveShadow>
         <meshStandardMaterial color="#c8f23c" roughness={0.95} />
       </mesh>
@@ -175,7 +176,7 @@ export const WarmStudio: React.FC<{ children: React.ReactNode; wallZ?: number; t
         <mesh position={[0, 20, -60]}><planeGeometry args={[300, 200]} /><meshBasicMaterial color="#a8987f" /></mesh>
       </Environment>
       <hemisphereLight args={['#fff4e2', '#7a6552', 0.85]} />
-      <spotLight ref={spot} position={[70, 90, 80]} angle={0.32} penumbra={0.35} intensity={42000} decay={2} color="#ffe2b8" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0005} />
+      <spotLight ref={spot} position={[70, 90, 80]} angle={0.32} penumbra={0.35} intensity={42000} decay={2} color="#ffe2b8" castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-bias={-0.0005} />
       <mesh position={[0, 60, wallZ]} receiveShadow><planeGeometry args={[600, 300]} /><meshStandardMaterial color="#e2d6c4" roughness={0.95} /></mesh>
       {table ? (
         <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[400, 200]} /><meshPhysicalMaterial map={wood} roughness={0.55} clearcoat={0.3} clearcoatRoughness={0.4} /></mesh>
@@ -251,7 +252,7 @@ export const Cafe: React.FC<{ children: React.ReactNode; wall?: boolean; fog?: b
         <Lightformer form="rect" map={stripbox()} intensity={0.9} color="#ffffff" position={[-60, 30, 40]} scale={[30, 40, 1]} target={[0, 0, 0]} />
       </Environment>
       <hemisphereLight args={['#ffe4c4', '#2b1a0f', 0.55]} />
-      <directionalLight position={[30, 80, 40]} intensity={1.4} color="#fff0da" castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} shadow-radius={8} shadow-bias={-0.0004} />
+      <directionalLight position={[30, 80, 40]} intensity={1.4} color="#fff0da" castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} shadow-radius={8} shadow-bias={-0.0004} />
       <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[240, 140]} /><meshPhysicalMaterial map={wood} roughness={0.5} clearcoat={0.4} clearcoatRoughness={0.35} /></mesh>
       {wall && <>
         <mesh position={[0, 80, -140]}><planeGeometry args={[900, 400]} /><meshStandardMaterial color="#3b2a1d" roughness={0.9} /></mesh>

@@ -7,6 +7,7 @@ import { Stand, Phone, Tablet, TabletStand, STAND, PHONE, TABLET, standPoint, AR
 import { DarkStudio, LimeStudio, WarmStudio, Cafe, Post, Cup, Plant, woodTex } from '../three/studios';
 import { CamAt, VF_STAND_RY, qrWorld } from './Stills';
 import { SUPERS, BEATS, ShotId } from '../timeline';
+import { Q } from '../three/quality';
 import { SuperText, C, SANS, MONO, ease, easeIO, useInOut } from '../brand';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -98,8 +99,8 @@ const TapScene: React.FC = () => {
     const d = drift(t, 0.14 * k, 2.2); pos.add(V(...d));
   }
   const kc = tween(t, 1.85, 3.35, 0, 1, easeIO), kp = tween(t, 3.35, 10, 0, 1, easeIO);
-  const camPos = lerpV(lerpV(V(33, 42, 44), V(28, 37, 37), tween(t, 0, 1.85)), P.camEnd, kc).lerp(V(-0.4, 21, 64), kp);
-  const camT = lerpV(V(-2, 8, 6), V(-0.5, 17.6, 24), kc).lerp(V(-0.3, 17.6, 24), kp);
+  const camPos = lerpV(lerpV(V(38, 12.5, 24), V(33, 11.5, 21), tween(t, 0, 1.85)), P.camEnd, kc).lerp(V(-0.4, 21, 64), kp);
+  const camT = lerpV(V(-1, 7, 4), V(-0.5, 17.6, 24), kc).lerp(V(-0.3, 17.6, 24), kp);
   const focus = lerpV(P.glyph, P.H, kc);
   const glyphW = P.glyph.clone().addScaledVector(P.n, 0.01);
   return (
@@ -110,7 +111,7 @@ const TapScene: React.FC = () => {
         <Ripple t={t} at={B.contact} pos={glyphW} quat={P.qFace} size={4.2} />
         <Phone position={pos} quaternion={quat} tex={tex} />
       </DarkStudio>
-      <Post focus={focus} range={t < 2 ? 14 : 9} bokeh={2.6} bloom={0.35} />
+      <Post focus={focus} range={11} bokeh={2.6} bloom={0.35} />
     </>
   );
 };
@@ -153,7 +154,7 @@ const ScanScene: React.FC = () => {
         <Cup position={[-26, 0, -8]} />
         <Phone position={pos} quaternion={quat} tex={tex} />
       </WarmStudio>
-      <Post focus={lerpV(lerpV(qrWorld(), pos, 0.55), pos, read)} range={16 - 8 * read} bokeh={2.4} vignette={0.35} bloom={0.12} />
+      <Post focus={lerpV(lerpV(qrWorld(), pos, 0.55), pos, read)} range={10} bokeh={2.4} vignette={0.35} bloom={0.12} />
     </>
   );
 };
@@ -365,7 +366,7 @@ const SoloScene: React.FC = () => {
         })}
       </Cafe>
       <hemisphereLight args={['#fff1dc', '#4a3220', 1.1]} />
-      <directionalLight position={[-80, 300, 160]} intensity={2.4} color="#fff0da" castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-300} shadow-camera-right={300} shadow-camera-top={300} shadow-camera-bottom={-300} shadow-bias={-0.0005} />
+      <directionalLight position={[-80, 300, 160]} intensity={2.4} color="#fff0da" castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-camera-left={-300} shadow-camera-right={300} shadow-camera-top={300} shadow-camera-bottom={-300} shadow-bias={-0.0005} />
       <Post focus={V(20, 75, 10)} range={260} bokeh={1.2} vignette={0.45} bloom={0.3} />
     </>
   );

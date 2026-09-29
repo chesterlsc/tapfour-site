@@ -51,7 +51,9 @@ function events(now = Date.now()) {
     for (let i = 0; i < perDay; i++) {
       const h = pickHour();
       const ts = phMidnightUtc - day * 864e5 + (h - 0) * 3600e3 + Math.floor(rnd() * 3600e3);
-      if (ts > now - 60e3) continue;
+      // Today is always a full café day (7AM–10PM PH), whatever time the capture runs: the dashboard's TODAY
+      // query has no upper bound, and a future timestamp reads as "just now". Past days stop at the present.
+      if (day > 0 && ts > now - 60e3) continue;
       const dev = DEVICES[Math.floor(rnd() * DEVICES.length)];
       const menuStand = dev[3].length > 1;
       const isMenu = menuStand && rnd() < 0.5;

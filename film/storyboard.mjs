@@ -3,7 +3,7 @@
 import { bundle } from '@remotion/bundler';
 import { renderStill, selectComposition } from '@remotion/renderer';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
@@ -17,7 +17,10 @@ mkdirSync(path.join(ROOT, 'out/frames'), { recursive: true });
 const only = process.argv.find(a => a.startsWith('--only='))?.slice(7).split(',');
 for (const [id, , sec] of PICKS) {
   if (only && !only.includes(id)) continue;
-  await renderStill({ serveUrl, composition, frame: Math.round(sec * fps), output: path.join(ROOT, `out/frames/${id}.png`), ...common });
+  const frame = Math.round(sec * fps), rendered = path.join(ROOT, `out/frames/film/${String(frame).padStart(4, '0')}.jpg`);
+  // Prefer the exact frame from the film render; otherwise render a still.
+  if (existsSync(rendered)) copyFileSync(rendered, path.join(ROOT, `out/frames/${id}.png`));
+  else await renderStill({ serveUrl, composition, frame, output: path.join(ROOT, `out/frames/${id}.png`), ...common });
   console.log('  frame', id);
 }
 execFileSync('python3', [path.join(ROOT, 'capture/contact.py'), JSON.stringify(PICKS)], { stdio: 'inherit', cwd: ROOT });

@@ -11,7 +11,7 @@ export const SHOT_COMPONENTS: Record<ShotId, React.FC> = {
 };
 
 // How each shot enters: a hard cut on the beat (0), or a dissolve of n seconds over the tail of the previous shot.
-export const ENTER: Record<ShotId, number> = { open: 0, reveal: 0, tap: 0.6, scan: 0, order: 0.6, owner: 0, setup: 0, solo: 0.7, end: 0.8 };
+export const ENTER: Record<ShotId, number> = { open: 0, reveal: 0, tap: 0, scan: 0, order: 0.6, owner: 0, setup: 0, solo: 0.7, end: 0.8 };
 
 const FadeIn: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
   const f = useCurrentFrame(), { fps } = useVideoConfig();

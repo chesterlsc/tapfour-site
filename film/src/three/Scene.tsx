@@ -28,7 +28,7 @@ const Kick: React.FC = () => {
     const h = delayRender('three: draw after mount');
     let n = 0;
     // timers, not requestAnimationFrame: background tabs (render concurrency) throttle rAF
-    const tick = () => { advance(performance.now()); if (++n < 2) setTimeout(tick, 0); else continueRender(h); };
+    const tick = () => { advance(performance.now()); if (++n < 1) setTimeout(tick, 0); else continueRender(h); };
     const id = setTimeout(tick, 0);
     return () => { clearTimeout(id); continueRender(h); };
   }, [frame]);

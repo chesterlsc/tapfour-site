@@ -9,6 +9,7 @@ import { renderFrames, renderMedia, renderStill, selectComposition } from '@remo
 import { parseArgs } from 'node:util';
 import { mkdirSync, rmSync, copyFileSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const { values: a } = parseArgs({ options: { scale: { type: 'string', default: '1' }, fps: { type: 'string', default: '30' }, only: { type: 'string' }, shot: { type: 'string' }, concurrency: { type: 'string', default: '3' }, frames: { type: 'string' } } });
 const scale = Number(a.scale), fps = Number(a.fps), concurrency = Number(a.concurrency);
@@ -20,10 +21,10 @@ const common = { inputProps, browserExecutable, chromiumOptions, timeoutInMillis
 
 const bundled = async () => bundle({ entryPoint: path.join(ROOT, 'src/index.ts'), publicDir: path.join(ROOT, 'public') });
 const comp = (serveUrl, id) => selectComposition({ serveUrl, id, ...common });
-const progress = label => ({ renderedFrames, encodedFrames, progress: p }) => {
-  const n = renderedFrames ?? encodedFrames ?? Math.round((p ?? 0) * 100);
-  if (n % 25 === 0) process.stdout.write(`\r  ${label}: ${n}   `);
-};
+// onProgress is throttled, so log whenever another 25 frames are done rather than on exact multiples.
+const progress = label => { let last = -1; return ({ renderedFrames = 0 }) => {
+  if (Math.floor(renderedFrames / 25) !== last) { last = Math.floor(renderedFrames / 25); process.stdout.write(`\r  ${label}: ${renderedFrames}   `); }
+}; };
 
 async function frames(serveUrl, id, dir) {
   const composition = await comp(serveUrl, id);
@@ -57,13 +58,30 @@ if (a.shot) {
   await renderMedia({ serveUrl, composition, codec: 'h264', crf: 18, pixelFormat: 'yuv420p', outputLocation: path.join(ROOT, `out/shots/${a.shot}.mp4`), concurrency, onProgress: progress(a.shot), ...common });
   console.log(`\n  → out/shots/${a.shot}.mp4`);
 } else if (!a.only || a.only === 'film') {
+  // The film renders in chunks of 150 frames, each in a fresh browser (long-lived software-GL sessions slow down),
+  // into out/frames/film/NNNN.jpg — so a stopped render resumes where it left off — then ffmpeg encodes it.
   console.log('3 · film');
   const composition = await comp(serveUrl, 'Film');
   const name = `tapfour-connect-${composition.height}p${fps}`;
-  mkdirSync(path.join(ROOT, 'out'), { recursive: true });
-  const t0 = Date.now();
-  await renderMedia({ serveUrl, composition, codec: 'h264', crf: 18, pixelFormat: 'yuv420p', audioCodec: 'aac', audioBitrate: '256k', outputLocation: path.join(ROOT, `out/${name}.mp4`), concurrency, onProgress: progress('film'), ...common });
+  const dir = path.join(ROOT, 'out/frames/film');
+  mkdirSync(dir, { recursive: true });
+  const t0 = Date.now(), N = composition.durationInFrames, CH = 150;
+  const have = f => existsSync(path.join(dir, String(f).padStart(4, '0') + '.jpg'));
+  for (let s0 = 0; s0 < N; s0 += CH) {
+    const s1 = Math.min(N, s0 + CH) - 1;
+    if (Array.from({ length: s1 - s0 + 1 }, (_, k) => s0 + k).every(have)) continue;
+    const tmp = path.join(dir, `.chunk-${s0}`); rmSync(tmp, { recursive: true, force: true }); mkdirSync(tmp);
+    const c0 = Date.now();
+    await renderFrames({ serveUrl, composition, outputDir: tmp, imageFormat: 'jpeg', jpegQuality: 95, concurrency, frameRange: [s0, s1], imageSequencePattern: '[frame].[ext]', onFrameUpdate: () => {}, onStart: () => {}, ...common });
+    for (const f of readdirSync(tmp)) { const m = f.match(/^(\d+)\.jpe?g$/); if (m) renameSync(path.join(tmp, f), path.join(dir, String(Number(m[1])).padStart(4, '0') + '.jpg')); }
+    rmSync(tmp, { recursive: true, force: true });
+    console.log(`  frames ${s0}–${s1} (${((Date.now() - c0) / (s1 - s0 + 1) / 1000).toFixed(1)} s/frame)`);
+  }
   const stem = path.join(ROOT, 'public/audio/tapfour-connect.wav');
+  const bin = path.join(ROOT, 'node_modules/@remotion/compositor-linux-x64-gnu');
+  execFileSync(path.join(bin, 'ffmpeg'), ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', path.join(dir, '%04d.jpg'), ...(existsSync(stem) ? ['-i', stem] : []),
+    '-c:v', 'libx264', '-crf', '18', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+    ...(existsSync(stem) ? ['-c:a', 'aac', '-b:a', '256k', '-shortest'] : []), path.join(ROOT, `out/${name}.mp4`)], { stdio: 'inherit', env: { ...process.env, LD_LIBRARY_PATH: bin } });
   if (existsSync(stem)) copyFileSync(stem, path.join(ROOT, 'out/tapfour-connect-audio.wav'));
-  console.log(`\n  → out/${name}.mp4 (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
+  console.log(`  → out/${name}.mp4 (${((Date.now() - t0) / 60000).toFixed(1)} min)`);
 }
