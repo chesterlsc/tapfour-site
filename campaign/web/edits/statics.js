@@ -33,6 +33,6 @@ export default [
   ] },
   { name: 'story-9x16', fmt: '9x16', w: 1080, h: 1920, plate: 'details', T: 8.3, params: { zoom: 0.74 }, cues: [
     { kind: 'text', y: 250, lines: [['h1', 'One tap to your'], ['h1 lime', 'Google reviews.']] },
-    { kind: 'endcard', y: 1440, sub: 'Tapfour Review · Tapfour Connect', cta: 'Order at tap4.ph' }
+    { kind: 'endcard', y: 1510, sub: 'Tapfour Review · Tapfour Connect', cta: 'Order at tap4.ph' }
   ] }
 ];

@@ -30,21 +30,21 @@ export async function update(t) {
     const k = t / CUTS[0];
     pos = kf(k, [[0, [120, 150, 95]], [1, [95, 142, 110]]], ease.sine); tgt = [26, 100, -6];
     S.scene.environmentRotation.y = -0.9 + k * 1.1;
-    f = S.cam.position.distanceTo(new THREE.Vector3(30, 100, -8));
+    f = new THREE.Vector3(30, 100, -8);
   } else if (t < CUTS[1]) { // 2 · the bend and the base, low side angle
     const k = (t - CUTS[0]) / (CUTS[1] - CUTS[0]);
     stand.rotation.y = -1.18 - 0.3 * ease.sine(k);
     pos = kf(k, [[0, [-20, 40, 290]], [1, [-8, 42, 272]]], ease.sine); tgt = [-6, 30, -12];
     S.scene.environmentRotation.y = 0.2 + k * 0.6;
-    f = S.cam.position.distanceTo(new THREE.Vector3(0, 30, -8));
+    f = new THREE.Vector3(0, 30, -8);
   } else { // 3 · frontal hero, the whole stand, dimensions draw on
     const k = seg(t, CUTS[1], duration);
     pos = kf(k, [[0, [150, 124, 500]], [1, [70, 108, 462]]], ease.out); tgt = kf(k, [[0, [0, 60, -5]], [1, [0, 58, -5]]], ease.out);
     S.scene.environmentRotation.y = -0.4 + ease.inOut(k) * 0.7;
-    f = S.cam.position.distanceTo(new THREE.Vector3(0, 55, 0));
+    f = new THREE.Vector3(0, 55, 0);
   }
   S.cam.position.set(...pos); S.cam.lookAt(...tgt);
-  S.focus(f);
+  S.focus(S.cam.position.distanceTo(f)); // focus on the subject from this frame's camera
   S.render();
   // dimensions: only in the hero section
   const d = seg(t, CUTS[1] + 1.2, CUTS[1] + 2.2), o = t > CUTS[1] ? 1 : 0;
