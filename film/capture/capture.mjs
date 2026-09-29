@@ -23,7 +23,12 @@ const tabletCtx = await browser.newContext({ viewport: { width: 1180, height: 82
 const settle = async p => { await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(150); };
 const rect = (p, sel) => p.$eval(sel, el => { const r = el.getBoundingClientRect(); return { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height }; });
 const rects = (p, sel) => p.$$eval(sel, els => els.map(el => { const r = el.getBoundingClientRect(); return { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height, text: el.innerText.split('\n')[0] }; }));
-const shot = async (p, name, opts = {}) => { await settle(p); await p.screenshot({ path: OUT + name + '.png', ...opts }); console.log('  ' + name); };
+// Brand rule for the film: the leaf mark always sits beside the wordmark. The public pages' footer prints
+// "POWERED BY tapfour" as text only, so the repo's own .tf-mark is added in front of it (the one change to real UI).
+const fixLockup = () => document.querySelectorAll('.powered b').forEach(b => {
+  if (!b.querySelector('.tf-mark')) b.insertAdjacentHTML('afterbegin', '<span class="tf-mark" style="font-size:13px;margin-right:4px;vertical-align:-2px" aria-hidden="true"></span>');
+});
+const shot = async (p, name, opts = {}) => { await p.evaluate(fixLockup); await settle(p); await p.screenshot({ path: OUT + name + '.png', ...opts }); console.log('  ' + name); };
 
 // ---------- owner login (tablet) ----------
 const tab = await tabletCtx.newPage();
@@ -55,7 +60,9 @@ const calamansi = await itemId('Calamansi Cold Brew');
 await tab.evaluate(id => { const d = document.querySelector(`#i${id} details`); if (d) d.open = true; }, calamansi);
 await tab.fill(`#i${calamansi} input[name=price]`, '175');
 await Promise.all([tab.waitForURL(/msg=/), tab.click(`#i${calamansi} button:has-text("Save")`)]);
-await ph.goto(BASE + '/menu/kanto-coffee?d=K4NT01');
+// The public menu is cached for 15 s (Cache-Control: public, max-age=15), so load it fresh the way a new guest would.
+await ph.goto(BASE + '/menu/kanto-coffee?d=K4NT01&fresh=1', { waitUntil: 'networkidle' });
+if (!(await ph.content()).includes('SOLD OUT') || !(await ph.content()).includes('₱175')) throw new Error('menu-after does not show the owner edits');
 await shot(ph, 'menu-after', { fullPage: true });
 meta.menuAfter = await menuMeta();
 

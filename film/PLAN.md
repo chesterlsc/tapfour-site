@@ -8,10 +8,25 @@ Everything lives in `film/`, a Remotion (React/TS) project.
 |---|---|
 | `src/timeline.ts` | Every shot and super timing (seconds), plus the frame rate and resolution helpers. |
 | `src/shots/*` | One composition per shot, plus a `Film` composition that sequences them. |
-| `src/screens/*` | The 2D screen compositions that play on the phone and tablet. They are rendered first and then mapped onto the 3D devices as video textures. |
+| `src/screens/*` | The 2D screen compositions that play on the phone and tablet. They are rendered first as JPEG sequences (`public/screens/<name>/`) and then mapped onto the 3D device screens, one image per frame. |
+| `src/three/*` | The 3D kit: L-stand geometry, phone, tablet, studios (dark reflective, lime cyclorama, warm with leaf gobo, café), post (depth of field, bloom, grain, PBR-neutral tone mapping). |
 | `capture/*` | Runs the real platform Worker locally with fictional seed data. Playwright then captures the real UI at 3× device scale. |
 | `audio/*` | Original synthesized sound design and music bed (Python + numpy). |
-| `render.mjs` | Renders screens, then the film, then the audio stem. `--scale 2` gives 4K, `--fps 60` gives 60 fps; layouts stay the same. |
+| `render.mjs` | Renders the pre-pass (café photos, viewfinder), the device screens, then the film and the audio stem. `--scale 2` gives 4K and `--fps 60` gives 60 fps with no layout changes. `--shot <id>` renders a single shot. |
+| `storyboard.mjs`, `qa.mjs` | The contact sheet (`out/storyboard.png`) and QA stills. |
+
+**Build, in order:**
+
+```bash
+cd film && npm i
+capture/run.sh                 # local Worker + seed + Playwright capture (real UI) → public/capture/
+node capture/artwork.mjs       # stand face artwork → public/art/
+python3 capture/plate.py       # opening plate from the supplied 4K render
+python3 audio/sound.py         # soundtrack + stem → public/audio/
+node render.mjs                # pre-pass → screens → out/tapfour-connect-1080p30.mp4 (+ out/tapfour-connect-audio.wav)
+node storyboard.mjs            # out/storyboard.png
+node render.mjs --scale 2      # the same film at 3840×2160
+```
 
 ## Recon
 
@@ -74,7 +89,9 @@ Everything lives in `film/`, a Remotion (React/TS) project.
 | Shot | Screen / asset | Source |
 |---|---|---|
 | 1 | Black Review stand, dark studio | Supplied render (upload `e94664c9`, 2160×3840) |
-| 2, 3, 4, 5, 8 | Stand artwork: "Leave us a review" and "Review or view our menu", black and white | Rebuilt as vector artwork from the renders and `assets/tapfour-l-*.jpg`: brand fonts, favicon leaf paths, Google G, NFC glyph. The QR is generated with the platform's own `qrcode-generator` and has a leaf centre like the product. |
+| 2, 3, 4, 5, 8 | Stand artwork: "Leave us a review" and "Review or view our menu", black and white | Rebuilt as vector artwork from the renders and `assets/tapfour-l-*.jpg` (`capture/artwork.mjs`): brand fonts, favicon leaf paths, Google G, NFC glyph. The QR is generated with the platform's own `qrcode-generator` and has a leaf centre like the product. It encodes `https://tap4.ph`, so a viewer scanning the film lands on the real site rather than a demo code. It was verified to decode. |
+| 4 | Camera viewfinder | Rendered from the same 3D scene, from the phone's camera position (`Viewfinder` composition), so the screen shows exactly what the phone points at. |
+| 7 | Photos on the Google Business Profile | Rendered from the 3D café and warm-studio scenes (`Photos` composition). |
 | 3 | `go.tap4.ph/t/K4NT07` → `g.page/...` redirect | Real 302 from the local Worker. The URLs shown in the browser bar are the ones it returned. |
 | 4 | Live menu, before and after | **Real** `/menu/kanto-coffee`, captured before and after real `/app/menu` edits (sold out + price). |
 | 6 | Owner dashboard | **Real** `/app` overview, Kanto Coffee seed data. |
@@ -109,6 +126,8 @@ Each of these is built with the repo's own tokens and `base.css` components (fon
   - `./assets/renders/` (16 stills) was not in the repo.
   - I used the four renders supplied in the chat (4K, dark studio with floor reflection) and the repo's `tapfour-l-*.jpg` photos as reference.
   - There are no lime-studio or leaf-shadow stills, so those setups are 3D. The "Connect with us" render is never used.
+- **Lockup on real pages.** The public menu and business pages print "POWERED BY tapfour" as text without the leaf. Rule 4 of the brief does not allow that, so the capture adds the repo's own `.tf-mark` in front of the wordmark (`capture/capture.mjs`, `fixLockup`). This is the only change made to real UI.
+- **Orders tile.** Not shown, for the reason given under "Orders count on the dashboard" above.
 - **Hands.** A procedural 3D hand would not pass as natural, so device shots are framed so the hand is just out of frame (the phone carries handheld drift), or the device rests on a table or counter. Touches show as soft touch points.
 
 ## Pitch (tap4.ph hero)

@@ -5,3 +5,7 @@ public/capture/
 public/screens/
 .remotion/
 out/frames/
+public/audio/
+out/qa/
+out/shots/
+out-*.log

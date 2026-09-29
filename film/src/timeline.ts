@@ -1,62 +1,58 @@
-// Every timing in the film lives here, in seconds. Resolution and frame rate are parameters:
-//   render.mjs --scale 2   → 3840×2160 (layouts are authored at 1920×1080 and scale with it)
-//   render.mjs --fps 60
-export const BASE_W = 1920;
-export const BASE_H = 1080;
-export const DURATION = 90;
+// Every timing in the film lives here, in seconds. Frame rate and resolution are parameters:
+// render at 4K with `node render.mjs --scale 2` (all layout is in 1920×1080 design units, scaled at the root).
 
-export type ShotId = 'open' | 'reveal' | 'tap' | 'scan' | 'order' | 'owner' | 'done' | 'solo' | 'end';
+export const DESIGN = { width: 1920, height: 1080 };
+export const DEFAULT_FPS = 30;
 
-// Shot windows. Neighbouring shots overlap by XFADE so each transition is a 0.6–1.2 s dissolve
-// (a shot is rendered from `from - XFADE/2` to `to + XFADE/2`).
-export const SHOTS: Record<ShotId, { from: number; to: number; label: string }> = {
-  open: { from: 0, to: 7, label: 'Open' },
-  reveal: { from: 7, to: 12, label: 'Reveal' },
-  tap: { from: 12, to: 22, label: 'One tap' },
-  scan: { from: 22, to: 32, label: 'Scan' },
-  order: { from: 32, to: 52, label: 'Table ordering' },
-  owner: { from: 52, to: 64, label: 'Owner app' },
-  done: { from: 64, to: 74, label: 'Done for you' },
-  solo: { from: 74, to: 84, label: 'Solo package' },
-  end: { from: 84, to: 90, label: 'End card' },
-};
-export const SHOT_ORDER: ShotId[] = ['open', 'reveal', 'tap', 'scan', 'order', 'owner', 'done', 'solo', 'end'];
-export const XFADE = 0.8;
+export type ShotId = 'open' | 'reveal' | 'tap' | 'scan' | 'order' | 'owner' | 'setup' | 'solo' | 'end';
 
-// Supers: large, tight tracking, ≥1.5 s on screen, fade + 8 px rise.
-export type SuperDef = { text: string; sub?: string; tag?: string; from: number; to: number; pos?: 'left' | 'center' | 'right' | 'bottom'; tone?: 'light' | 'dark' };
-export const SUPERS: SuperDef[] = [
-  { text: 'Reviews. Menu. Orders. One stand.', from: 8.0, to: 11.6, pos: 'bottom', tone: 'dark' },
-  { text: 'One tap.', from: 13.2, to: 15.4, pos: 'left' },
-  { text: 'Your Google review. Instantly.', from: 17.6, to: 21.6, pos: 'left' },
-  { text: "Scan. A menu that's alive.", from: 27.0, to: 31.6, pos: 'left' },
-  { text: 'Order from the table.', tag: 'TABLE ORDERING · ADD-ON', from: 33.2, to: 38.6, pos: 'left' },
-  { text: 'Straight to your staff.', tag: 'TABLE ORDERING · ADD-ON', from: 41.2, to: 46.4, pos: 'left' },
-  { text: 'Meet the tapfour app.', from: 53.0, to: 57.4, pos: 'left' },
-  { text: 'Know your busiest hours.', from: 58.2, to: 63.4, pos: 'left' },
-  { text: 'We set it all up.', sub: 'Google Business Profile · Website · Menu', from: 64.8, to: 73.4, pos: 'left' },
+export const SHOTS: { id: ShotId; start: number; end: number; label: string }[] = [
+  { id: 'open', start: 0, end: 7, label: 'Open' },
+  { id: 'reveal', start: 7, end: 12, label: 'Reveal' },
+  { id: 'tap', start: 12, end: 22, label: 'One tap' },
+  { id: 'scan', start: 22, end: 32, label: 'Scan' },
+  { id: 'order', start: 32, end: 52, label: 'Table ordering' },
+  { id: 'owner', start: 52, end: 64, label: 'Owner app' },
+  { id: 'setup', start: 64, end: 74, label: 'Done for you' },
+  { id: 'solo', start: 74, end: 84, label: 'Solo package' },
+  { id: 'end', start: 84, end: 90, label: 'End card' }
 ];
+export const FILM_SECONDS = 90;
+// Shots overlap by this much for cross-dissolves (the outgoing shot keeps rendering under the incoming one).
+export const XFADE = 0.7;
 
-// Beats inside shots (seconds, absolute). Screens and sound design both read these.
-export const BEATS = {
-  lockup: 4.0,
-  nfcContact: 14.3,
-  reviewStars: 19.2, // first star; one every STAR_GAP
-  starGap: 0.32,
-  qrLock: 24.3,
-  menuOpen: 25.4,
-  menuLive: 28.6,
-  add: [34.9, 36.5, 38.1],
-  placeOrder: 39.3,
-  orderToast: 41.4,
-  orderOpen: 43.0,
-  accept: 44.9,
-  guestReceived: 47.2,
-  guestPreparing: 49.0,
-  dashCount: 53.2,
-  gbpAfter: 66.6,
-  landings: [76.0, 76.7, 77.4, 78.1, 78.9],
-  priceCard: 80.0,
+// Supers, in seconds relative to the start of their shot. Each holds ≥ 1.5 s and enters with a fade + 8 px rise.
+export type Super = { text: string; sub?: string; tag?: string; at: number; out: number; pos?: 'left' | 'center' | 'right' | 'bottom' };
+export const SUPERS: Record<ShotId, Super[]> = {
+  open: [],
+  reveal: [{ text: 'Reviews.\nMenu.\nOrders.\nOne stand.', at: 0.9, out: 4.7, pos: 'left' }],
+  tap: [
+    { text: 'One tap.', at: 1.6, out: 4.4, pos: 'left' },
+    { text: 'Your Google review.\nInstantly.', at: 6.2, out: 9.6, pos: 'left' }
+  ],
+  scan: [{ text: 'Scan.\nA menu that’s alive.', at: 1.2, out: 9.5, pos: 'left' }],
+  order: [
+    { text: 'Order from\nthe table.', tag: 'TABLE ORDERING · ADD-ON', at: 1.0, out: 7.4, pos: 'left' },
+    { text: 'Straight to\nyour staff.', at: 9.0, out: 15.6, pos: 'left' }
+  ],
+  owner: [
+    { text: 'Meet the\ntapfour app.', at: 0.8, out: 5.4, pos: 'left' },
+    { text: 'Know your\nbusiest hours.', at: 6.0, out: 11.5, pos: 'left' }
+  ],
+  setup: [{ text: 'We set it all up.', sub: 'Google Business Profile · Website · Menu', at: 0.6, out: 9.5, pos: 'bottom' }],
+  solo: [],
+  end: []
 };
 
-export const sec = (s: number, fps: number) => Math.round(s * fps);
+// Beats inside shots (seconds relative to the shot start) — screens, SFX and camera moves all read these.
+export const BEATS = {
+  open: { lockup: 4.0 },
+  tap: { contact: 1.35, banner: 1.6, browser: 2.5, redirect: 4.1, sheet: 4.6, stars: 5.6, starStep: 0.32 },
+  scan: { lock: 2.6, pill: 3.0, tapPill: 3.9, menuUp: 4.1, soldOut: 6.3, price: 7.3 },
+  order: { add1: 1.7, add2: 3.3, add3: 4.7, place: 6.2, cutTablet: 7.6, toast: 8.6, open: 10.4, accept: 12.1, cutPhone: 13.8, preparing: 15.4 },
+  owner: { count: 0.4, bars: 1.1, split: 3.4 },
+  setup: { gbpAfter: 1.4, cutWeb: 3.4, cutMenu: 6.6, paste: 7.3, added: 8.4 },
+  solo: { land: [0.9, 1.6, 2.3, 3.0, 3.8], card: 5.4 }
+} as const;
+
+export const shot = (id: ShotId) => SHOTS.find(s => s.id === id)!;
