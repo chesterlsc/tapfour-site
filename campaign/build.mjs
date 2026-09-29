@@ -28,7 +28,8 @@ if (!flags.includes('--titles-only') && !flags.includes('--audio-only')) {
 
 // 2 · title layer (transparent)
 const titles = `out/${name}.titles.mov`;
-if (!flags.includes('--audio-only')) {
+const reuse = flags.includes('--reuse-titles') && fs.existsSync(titles);
+if (!flags.includes('--audio-only') && !reuse) {
   const { server, port } = await serve();
   const { browser, page } = await openStage({ shot: 'titles', port, params: { edit: name }, w: edit.w, h: edit.h });
   const n = Math.round(D * fps);
@@ -45,6 +46,7 @@ if (!flags.includes('--audio-only')) {
   });
   await browser.close(); server.close();
   console.error('\n✓ titles', titles);
+  if (flags.includes('--titles-only')) process.exit(0);
 }
 
 // 3 · score + sound design
