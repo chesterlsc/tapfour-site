@@ -1,0 +1,10 @@
+{
+  "name": "tapfour-campaign",
+  "private": true,
+  "type": "module",
+  "description": "Launch campaign render pipeline: 3D stand, real dashboard screens, motion graphics, score. Renders MP4s and statics.",
+  "dependencies": {
+    "playwright-core": "1.56.1",
+    "three": "0.180.0"
+  }
+}

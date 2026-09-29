@@ -1,0 +1,96 @@
+<!doctype html>
+<!-- Simulated destination screens for the film (390 × 844). Not Google's UI: a plain stand-in for "the
+     business's Google review page", labelled as simulated in the film. State via ?s=lock|nfc|load|form&stars=0..5 -->
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'Instrument Sans'; src: url('/assets/instrument-sans-latin.woff2') format('woff2'); font-weight: 400 700; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/assets/jetbrains-mono-latin.woff2') format('woff2'); font-weight: 400 700; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 390px; height: 844px; overflow: hidden; font-family: 'Instrument Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.v { position: absolute; inset: 0; }
+/* lock screen */
+.lock { background: radial-gradient(120% 70% at 30% 20%, #3a2a1e 0%, #17110c 45%, #080605 100%); color: #f4efe8; }
+.lock__time { position: absolute; top: 118px; width: 100%; text-align: center; font-weight: 600; font-size: 86px; letter-spacing: -0.04em; }
+.lock__date { position: absolute; top: 96px; width: 100%; text-align: center; font-weight: 500; font-size: 19px; opacity: .8; }
+.status { position: absolute; top: 16px; left: 30px; right: 26px; display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; color: inherit; }
+.status i { display: inline-block; width: 24px; height: 11px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px currentColor; position: relative; }
+.status i::after { content: ''; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 15px; border-radius: 1px; background: currentColor; }
+.banner { position: absolute; left: 12px; right: 12px; top: 250px; padding: 14px 16px; border-radius: 22px; background: rgba(245,240,232,.16); backdrop-filter: blur(20px); display: flex; gap: 12px; align-items: center; color: #fff; }
+.banner__ic { width: 38px; height: 38px; border-radius: 10px; background: #f2f0eb; display: grid; place-items: center; flex-shrink: 0; }
+.banner b { display: block; font-size: 15px; font-weight: 650; }
+.banner span { font-size: 14px; opacity: .85; }
+.banner small { margin-left: auto; align-self: flex-start; font-size: 12px; opacity: .6; }
+/* review page */
+.rev { background: #fff; color: #1f1f1f; }
+.bar { height: 92px; padding: 52px 18px 0; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #f7f7f7; }
+.bar__url { flex: 1; height: 32px; border-radius: 10px; background: #ececec; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; color: #3c4043; font-weight: 500; }
+.lockic { width: 10px; height: 8px; border-radius: 2px; background: #5f6368; position: relative; margin-top: 3px; }
+.lockic::before { content: ''; position: absolute; left: 1.5px; top: -5px; width: 7px; height: 7px; border-radius: 4px 4px 0 0; box-shadow: inset 0 0 0 1.5px #5f6368; }
+.card { padding: 26px 22px 0; }
+.biz { display: flex; gap: 14px; align-items: center; }
+.biz__av { width: 52px; height: 52px; border-radius: 50%; background: #0a0a0b; color: #c8f23c; display: grid; place-items: center; font-weight: 700; font-size: 18px; box-shadow: 0 0 0 2px #c8f23c inset; }
+.biz b { font-size: 21px; font-weight: 650; letter-spacing: -0.01em; display: block; }
+.biz span { font-size: 13.5px; color: #5f6368; }
+.g { display: flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 13.5px; color: #5f6368; }
+.stars { display: flex; justify-content: center; gap: 12px; margin: 34px 0 10px; }
+.star { width: 46px; height: 46px; }
+.star path { fill: #fff; stroke: #80868b; stroke-width: 1.6; transition: none; }
+.star.on path { fill: #fbbc04; stroke: #fbbc04; }
+.hint { text-align: center; font-size: 14px; color: #5f6368; height: 20px; }
+.box { margin: 26px 0 0; height: 150px; border-radius: 12px; border: 1px solid #dadce0; padding: 14px 16px; font-size: 15.5px; color: #80868b; line-height: 1.45; }
+.box.typed { color: #202124; }
+.caret { display: inline-block; width: 1.5px; height: 18px; background: #1a73e8; vertical-align: -3px; margin-left: 1px; }
+.photos { margin-top: 16px; height: 46px; border-radius: 23px; border: 1px solid #dadce0; display: flex; align-items: center; justify-content: center; font-size: 14.5px; font-weight: 600; color: #1a73e8; gap: 8px; }
+.post { position: absolute; left: 22px; right: 22px; bottom: 44px; height: 52px; border-radius: 26px; background: #e8eaed; color: #9aa0a6; display: grid; place-items: center; font-weight: 650; font-size: 16px; }
+.post.on { background: #1a73e8; color: #fff; }
+.load { position: absolute; left: 0; top: 91px; height: 3px; background: #1a73e8; }
+</style></head>
+<body>
+<div class="v lock" id="lock">
+  <div class="status"><span></span><span><i></i></span></div>
+  <div class="lock__date">Friday, 26 September</div>
+  <div class="lock__time">7:42</div>
+  <div class="banner" id="banner">
+    <div class="banner__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a0a0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg></div>
+    <div><b>NFC tag</b><span>Open “go.tap4.ph”</span></div><small>now</small>
+  </div>
+</div>
+<div class="v rev" id="rev">
+  <div class="status" style="color:#1f1f1f"><span>7:42</span><span><i></i></span></div>
+  <div class="bar"><div class="bar__url"><span class="lockic"></span><span id="url">go.tap4.ph</span></div></div>
+  <div class="load" id="load"></div>
+  <div class="card">
+    <div class="biz"><div class="biz__av">KN</div><div><b>Kape Norte</b><span>Maginhawa St, Quezon City</span></div></div>
+    <div class="g"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.980-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Rate your visit on Google</div>
+    <div class="stars" id="stars"></div>
+    <div class="hint" id="hint">Tap a star to rate</div>
+    <div class="box" id="box">Share details of your visit</div>
+    <div class="photos">＋ Add photos</div>
+  </div>
+  <div class="post" id="post">Post</div>
+</div>
+<script>
+const star = '<svg class="star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" stroke-linejoin="round"/></svg>';
+document.getElementById('stars').innerHTML = star.repeat(5);
+const HINTS = ['Tap a star to rate', 'Terrible', 'Poor', 'Average', 'Good', 'Excellent'];
+const TYPED = 'Best Sagada latte in QC. Warm staff, cosy corner seats — we’ll be back!';
+// state(s): { view: 'lock'|'rev', banner: 0..1, load: 0..1, url, stars: 0..5, typed: 0..1, post: bool }
+window.state = s => {
+  document.getElementById('lock').style.display = s.view === 'lock' ? '' : 'none';
+  document.getElementById('rev').style.display = s.view === 'rev' ? '' : 'none';
+  const b = document.getElementById('banner'), k = s.banner ?? 0;
+  b.style.opacity = k; b.style.transform = `translateY(${(1 - k) * -40}px) scale(${0.96 + 0.04 * k})`;
+  document.getElementById('load').style.width = ((s.load ?? 1) * 100) + '%';
+  document.getElementById('load').style.opacity = (s.load ?? 1) >= 1 ? 0 : 1;
+  document.getElementById('url').textContent = s.url || 'go.tap4.ph';
+  const n = s.stars || 0;
+  [...document.querySelectorAll('.star')].forEach((e, i) => e.classList.toggle('on', i < n));
+  document.getElementById('hint').textContent = HINTS[n];
+  const box = document.getElementById('box'), c = Math.round((s.typed || 0) * TYPED.length);
+  box.classList.toggle('typed', c > 0);
+  box.innerHTML = c > 0 ? TYPED.slice(0, c) + (s.typed < 1 ? '<span class="caret"></span>' : '') : 'Share details of your visit';
+  document.getElementById('post').classList.toggle('on', !!s.post);
+};
+window.state({ view: new URLSearchParams(location.search).get('s') || 'lock', banner: 1, stars: 0 });
+</script>
+</body></html>

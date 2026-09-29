@@ -1,0 +1,157 @@
+<title>Tapfour Launch Campaign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: one reading column (≈68ch) that widens for the film row and the carousel strip. Tapfour's own tokens. */
+:root {
+  --bg: #f2f0eb; --fg: #0c0c0d; --muted: #66635d; --line: #d9d6ce; --card: #e9e6df; --accent: #4a6109; --lime: #c8f23c; --on-lime: #0a0a0b;
+  --display: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0a0a0b; --fg: #f2f0eb; --muted: #8f8c86; --line: #26262a; --card: #141416; --accent: #c8f23c; --lime: #c8f23c; --on-lime: #0a0a0b; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #0a0a0b; --fg: #f2f0eb; --muted: #8f8c86; --line: #26262a; --card: #141416; --accent: #c8f23c; --lime: #c8f23c; --on-lime: #0a0a0b; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 400 16px/1.55 var(--display); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: flex; flex-direction: column; gap: 64px; }
+.col { max-width: 720px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -0.03em; line-height: 1.05; }
+h1 { font-size: clamp(44px, 8vw, 88px); font-weight: 700; letter-spacing: -0.045em; }
+h1 span { color: var(--muted); }
+h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+h3 { font-size: 18px; font-weight: 650; letter-spacing: -0.01em; }
+p { margin: 0; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.leaf { width: 18px; height: 17px; flex: none; }
+.leaf path { fill: var(--lime); }
+.lede { font-size: 19px; line-height: 1.5; color: var(--fg); max-width: 640px; }
+.muted { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 22px; }
+.sec-head { display: flex; flex-direction: column; gap: 10px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+
+/* films */
+.films { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; align-items: start; }
+.film { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.film video { width: 100%; max-width: 100%; border-radius: 18px; background: #000; display: block; }
+.film .spec { font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
+.film p { font-size: 14.5px; color: var(--muted); }
+.film--master { grid-column: span 1; }
+.tag { display: inline-flex; align-self: flex-start; font: 700 10.5px/1 var(--mono); letter-spacing: .08em; padding: 6px 9px; border-radius: 99px; background: var(--lime); color: var(--on-lime); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th { text-align: left; font: 500 11px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 12px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: bottom; }
+td { padding: 12px 14px 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.tc { font: 500 13px/1.5 var(--mono); color: var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; }
+td b { font-weight: 650; }
+.script td:nth-child(2) { min-width: 220px; } .script td:nth-child(3) { min-width: 240px; }
+
+/* statics */
+.strip { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+.strip figure { margin: 0; flex: 0 0 auto; width: min(260px, 70vw); scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px; }
+.strip img { width: 100%; border-radius: 12px; display: block; background: var(--card); }
+.strip figcaption { font: 500 11px/1.3 var(--mono); letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
+
+/* lists */
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px 32px; }
+.item { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid var(--line); min-width: 0; }
+.item p { font-size: 14.5px; color: var(--muted); }
+.flag { color: var(--fg); }
+.num { font: 700 12px/1 var(--mono); color: var(--accent); }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 520px) { .wrap { gap: 48px; padding-block: 28px 60px; } .lede { font-size: 17px; } }
+</style>
+
+<main class="wrap">
+  <header class="col" style="display:flex;flex-direction:column;gap:22px">
+    <div class="eyebrow"><svg class="leaf" viewBox="0 0 23 22" aria-hidden="true"><path d="M0 6H2.2A8.8 12.8 0 0 1 11 18.8V22H8.8A8.8 12.8 0 0 1 0 9.2Z"/><path d="M12 14.8A8.8 12.8 0 0 1 20.8 2H23V5.2A8.8 12.8 0 0 1 14.2 18H12Z"/></svg>Tapfour · launch campaign · September 2026</div>
+    <h1>Great meal.<br><span>No review.</span></h1>
+    <p class="lede">An 81-second Instagram Reel for restaurant owners, cut down to 30 s, 15 s and a LinkedIn film, plus a carousel and statics. Every product shot is the real TAP4.1 L-Stand at its real size, and every app screen is the real Tapfour dashboard, captured from the platform code.</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><div class="eyebrow">The films</div><h2>Master first, then the cut-downs</h2></div>
+    <div class="films">
+      <!--FILMS-->
+    </div>
+    <p class="muted" style="font-size:14px">Previews here are compressed for the page. The full-quality files (1080 × 1920 / 1080 × 1350, H.264 + AAC, −14 LUFS) are in <code>campaign/deliverables/</code>.</p>
+  </section>
+
+  <section class="col">
+    <div class="sec-head"><div class="eyebrow">The idea</div><h2>Happy guests would review you. Finding the page is the problem.</h2></div>
+    <p>Leaving a Google review takes five steps on a phone, and the moment passes. The film shows those steps, strikes them out, and replaces them with one tap. Only after the stand is understood does it introduce Tapfour Connect, through the same stand: a live menu the owner changes from their phone, and a dashboard that counts every tap.</p>
+    <p class="muted">Order follows your brief: physical product → customer action → result → Connect → owner control → business value → call to action. Glossy black carries about 85% of product screen time; white appears once as the alternate finish.</p>
+  </section>
+
+  <section>
+    <div class="sec-head col"><div class="eyebrow">Master script · 80.8 s</div><h2>What happens, second by second</h2></div>
+    <div class="tbl-wrap"><table class="script">
+      <thead><tr><th>Time</th><th>Picture</th><th>On screen</th><th>Sound</th></tr></thead>
+      <tbody>
+        <tr><td class="tc">0:00</td><td>Evening café table, coffee in focus, the black stand soft behind</td><td><b>Great meal. No review.</b></td><td>Warm pad, a soft thud</td></tr>
+        <tr><td class="tc">0:03</td><td>The scene dims</td><td>The five steps to a Google review, struck out one by one. <b>That’s a lot to ask of a happy guest.</b></td><td>A tick per step</td></tr>
+        <tr><td class="tc">0:07</td><td>Still soft</td><td><b>What if it took one tap?</b></td><td>Riser</td></tr>
+        <tr><td class="tc">0:09</td><td>Rack focus onto the stand, light glides across the gloss</td><td><b>Tapfour Review</b> · NFC Google review stand</td><td>Impact; music starts on the tonic</td></tr>
+        <tr><td class="tc">0:12</td><td>Over the shoulder: the phone, screen on, dips onto the tap mark; the NFC prompt drops in</td><td><b>Guests tap their phone.</b></td><td>A soft “thock” and a two-note chime; the beat enters on the tap</td></tr>
+        <tr><td class="tc">0:16</td><td>Prompt → <code>go.tap4.ph</code> → redirect → review page, five stars, a short review</td><td><b>Your Google review page opens.</b> No app · no searching · <i>Simulated screen</i></td><td>Taps, star plucks, typing</td></tr>
+        <tr><td class="tc">0:22</td><td>Studio macros: corner glint, then the bend and base</td><td><b>Glossy PVC.</b> Wipes clean. · <b>Nothing to charge.</b> Passive NFC, no batteries, no Wi-Fi.</td><td>Whooshes on the cuts</td></tr>
+        <tr><td class="tc">0:26</td><td>Frontal hero, 105 mm and 70 mm dimension lines draw on</td><td><b>Arrives programmed to your Google review page.</b> → <b>Reviews still come from your guests. Tapfour just removes the searching.</b></td><td></td></tr>
+        <tr><td class="tc">0:31</td><td>Turntable swap to the Connect stand</td><td><b>Need more than reviews?</b> → <b>Tapfour Connect</b></td><td>Hats enter</td></tr>
+        <tr><td class="tc">0:36</td><td>The phone camera frames the stand’s real QR, then the real Kape Norte menu opens</td><td><b>Tap to review. Scan for your menu.</b> → <b>A live menu, hosted for you.</b></td><td>Focus blip, tap</td></tr>
+        <tr><td class="tc">0:42</td><td>Real menu editor beside the real guest menu: sold out, then ₱165 → ₱175; the guest page reloads each time</td><td><b>Sold out?</b> Tap once. · <b>New price?</b> No reprint.</td><td>Taps, typing, reload blips, chimes</td></tr>
+        <tr><td class="tc">0:51</td><td>Real owner dashboard: today’s numbers count up, busiest hours, what people opened</td><td><b>Every tap and scan, counted.</b> · <i>Sample data</i></td><td>Soft count ticks</td></tr>
+        <tr><td class="tc">0:59</td><td>Real “My links”: change a link, Save, the product’s own confirmation</td><td><b>Every stand updates on the next tap.</b></td><td>Success chime</td></tr>
+        <tr><td class="tc">1:04</td><td>Both black stands on the café table</td><td>Google reviews, one tap away · A menu you can change anytime · A dashboard that shows what works</td><td>Full arrangement</td></tr>
+        <tr><td class="tc">1:11</td><td>Black and white stands in the studio; the camera rises</td><td><b>Glossy black or white.</b> → tapfour · <b>Order at tap4.ph</b></td><td>Bell chord, tail</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="sec-head col"><div class="eyebrow">Carousel and statics</div><h2>Six slides, a feed post and a story</h2></div>
+    <div class="strip">
+      <!--STATICS-->
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col"><div class="eyebrow">Claims</div><h2>What the films say, and why each line is true</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Line</th><th>Backed by</th></tr></thead>
+      <tbody>
+        <tr><td><b>Your Google review page opens.</b></td><td>The tap hits <code>go.tap4.ph/t/&lt;code&gt;</code>, which answers with a 302 (no-store) to the business’s review link.</td></tr>
+        <tr><td><b>No app.</b></td><td>NFC and QR open a web link; guests install nothing.</td></tr>
+        <tr><td><b>Nothing to charge.</b> No batteries, no Wi-Fi.</td><td>NFC tags are passive; the redirect uses the guest’s own data connection.</td></tr>
+        <tr><td><b>Arrives programmed.</b></td><td>Checkout collects the Google Maps link and staff build the review link before shipping.</td></tr>
+        <tr><td><b>Guests see it on their next look.</b></td><td>The guest menu is a hosted page cached for 15 s; it doesn’t push live, so the film shows it reloading.</td></tr>
+        <tr><td><b>Every stand updates on the next tap.</b></td><td>The product’s own confirmation text; redirects are never cached.</td></tr>
+        <tr><td><b>Reviews still come from your guests.</b></td><td>Said on purpose. The films never claim reviews, rankings, followers, review counts, Wi-Fi or table ordering.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="sec-head col"><div class="eyebrow">Before paid media</div><h2>Things the audit found</h2></div>
+    <div class="checks">
+      <div class="item"><span class="num">SITE</span><h3>“Higher ranking on Google Maps”</h3><p>The hero promises a ranking outcome. The films avoid it; the site should too.</p></div>
+      <div class="item"><span class="num">SITE</span><h3>The live-taps ticker</h3><p>“got a 5★ Google review”, “+12 Instagram followers”, “rating 4.4 → 4.8★” read as live events the platform can’t measure.</p></div>
+      <div class="item"><span class="num">SITE</span><h3>Wi-Fi and guest stats</h3><p>Tap-to-join Wi-Fi, “in now”, “avg stay” and “returning” appear on the page and in the Solo plan but aren’t built yet.</p></div>
+      <div class="item"><span class="num">CATALOG</span><h3>Acrylic vs PVC</h3><p><code>products.csv</code> calls the L-Stand acrylic. The product is glossy PVC.</p></div>
+      <div class="item"><span class="num">NAMING</span><h3>“Connect” twice</h3><p>The 4-in-1 face is printed “Connect with us” while the software product is Tapfour Connect.</p></div>
+      <div class="item"><span class="num">DASHBOARD</span><h3>Home overflows on phones</h3><p>The owner Home lays out 510 px wide on a 390 px screen. One-line fix in <code>platform/src/views.js</code>: mobile <code>.app</code> needs <code>grid-template-columns: minmax(0, 1fr)</code>.</p></div>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="sec-head"><div class="eyebrow">Limits</div><h2>What would make it better</h2></div>
+    <p><b>People.</b> There’s no live-action footage; the phone is animated and there are no hands. A half-day pickup in a real café (a guest’s hand tapping the black stand, the owner at the counter marking an item sold out) would warm up the Reel and give the 15 s ad a human first frame.</p>
+    <p><b>Music.</b> The score is original and synthesized so the films are clear to post. It was checked by measurement (spectrum, −14 LUFS), not by ear. Replace it with a licensed track if it isn’t right; the sound design stays.</p>
+    <p><b>Prices.</b> None are baked in, because the site’s prices are sale-driven. Adding a price end card is one line in the edit file.</p>
+  </section>
+
+  <footer>Built in <code>campaign/</code>: 3D stand, real screens captured from <code>platform/</code>, motion typography, score. See <code>campaign/README.md</code> to re-render or change any copy.</footer>
+</main>

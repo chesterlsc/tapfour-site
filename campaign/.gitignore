@@ -1,0 +1,7 @@
+# Render intermediates (re-created by plates.mjs / build.mjs)
+node_modules/
+clips/
+out/
+frames/
+tools/
+*.tmp.mp4

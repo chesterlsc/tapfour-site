@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>tapfour stage</title>
+<link rel="stylesheet" href="/web/ui.css">
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="ui"></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+const W = +q.get('w') || 1080, H = +q.get('h') || 1920;
+document.documentElement.style.setProperty('--W', W + 'px');
+document.documentElement.style.setProperty('--H', H + 'px');
+document.documentElement.style.setProperty('--u', (Math.min(W, H) / 1080) + 'px');
+const faces = [
+  ['Instrument Sans', '/assets/instrument-sans-latin.woff2', '400 700'],
+  ['JetBrains Mono', '/assets/jetbrains-mono-latin.woff2', '400 700']
+];
+await Promise.all(faces.map(async ([f, u, wt]) => { const ff = new FontFace(f, `url(${u})`, { weight: wt }); await ff.load(); document.fonts.add(ff); }));
+const shot = await import(`/web/shots/${q.get('shot')}.js?v=${Date.now()}`);
+const ctx = { W, H, canvas: document.getElementById('gl'), ui: document.getElementById('ui'), params: Object.fromEntries(q) };
+await shot.init(ctx);
+window.frame = async t => { await shot.update(t); };
+window.duration = shot.duration;
+window.ready = true;
+</script>
+</body></html>
