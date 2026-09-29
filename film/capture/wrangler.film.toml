@@ -1,0 +1,25 @@
+# Film capture only: the real platform Worker, run LOCALLY with fictional seed data (see seed.mjs).
+# No routes, no custom domains, placeholder IDs: `wrangler dev` / `d1 execute --local` never reach Cloudflare.
+name = "tapfour-platform-film"
+main = "../../platform/src/index.js"
+compatibility_date = "2025-09-01"
+assets = { directory = "../../assets" }
+rules = [{ type = "Text", globs = ["**/*.liquid", "**/*.css"], fallthrough = true }]
+workers_dev = false
+
+[vars]
+# Shown in the UI the way owners see it; nothing is fetched from it.
+TAP_BASE = "https://go.tap4.ph"
+ADMIN_HOST = ""
+APP_HOST = ""
+HASH_SECRET = "film-local-only"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tapfour-film"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../platform/migrations"
+
+[[kv_namespaces]]
+binding = "MENUS"
+id = "00000000000000000000000000000000"
