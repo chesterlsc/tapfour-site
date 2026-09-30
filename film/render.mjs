@@ -1,11 +1,11 @@
 // Full build of the film, in dependency order:
-//   1. café photos + viewfinder (3D renders shown inside screens)   → public/art, public/screens/viewfinder
-//   2. device screens (2D compositions of the captured UI)          → public/screens/<name>/NNNN.jpg
-//   3. the film                                                     → out/tapfour-connect-<res>p<fps>.mp4 (+ audio stem)
-// Flags: --scale 2 (4K) · --fps 30 · --only film|screens|pre · --shot tap (render one shot to out/shots/) · --concurrency 3
-// Prerequisites: `npm run capture` (real UI captures), `node capture/artwork.mjs`, `python3 capture/plate.py`, `python3 audio/sound.py`.
+//   1. device screens (2D compositions of the captured UI)          → public/screens/<name>/NNNN.jpg
+//   2. the film                                                     → out/tapfour-connect-<res>p<fps>.mp4 (+ audio stem)
+// Flags: --scale 2 (4K) · --fps 30 · --only film|screens · --frames scan,tap (screens subset) · --shot tap (one shot to out/shots/) · --concurrency 3
+// Prerequisites: `npm run capture` (real UI captures), `python3 capture/plate.py && python3 capture/plates.py` (studio plates
+// from the supplied renders), `python3 audio/sound.py`.
 import { bundle } from '@remotion/bundler';
-import { renderFrames, renderMedia, renderStill, selectComposition } from '@remotion/renderer';
+import { renderFrames, renderMedia, selectComposition } from '@remotion/renderer';
 import { parseArgs } from 'node:util';
 import { mkdirSync, rmSync, copyFileSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import path from 'node:path';
@@ -40,15 +40,8 @@ async function frames(serveUrl, id, dir) {
 const SCREENS = [['ScreenTap', 'tap'], ['ScreenScan', 'scan'], ['ScreenOrderGuest', 'order'], ['ScreenOrderTablet', 'order-tablet'], ['ScreenDash', 'dash'], ['ScreenSetupPhone', 'setup-phone'], ['ScreenSetupTablet', 'setup-tablet']];
 
 let serveUrl = await bundled();
-if (!a.only || a.only === 'pre') {
-  console.log('1 · café photos + viewfinder');
-  const photos = await comp(serveUrl, 'Photos');
-  for (let i = 0; i < 3; i++) await renderStill({ serveUrl, composition: photos, frame: i, output: path.join(ROOT, `public/art/photo-${i + 1}.jpg`), imageFormat: 'jpeg', jpegQuality: 92, ...common });
-  await frames(serveUrl, 'Viewfinder', 'viewfinder');
-  serveUrl = await bundled();
-}
 if (!a.only || a.only === 'screens') {
-  console.log('2 · device screens');
+  console.log('1 · device screens');
   for (const [id, dir] of SCREENS) if (!a.frames || a.frames.split(',').includes(dir)) await frames(serveUrl, id, dir);
   serveUrl = await bundled();
 }
@@ -60,7 +53,7 @@ if (a.shot) {
 } else if (!a.only || a.only === 'film') {
   // The film renders in chunks of 150 frames, each in a fresh browser (long-lived software-GL sessions slow down),
   // into out/frames/film/NNNN.jpg — so a stopped render resumes where it left off — then ffmpeg encodes it.
-  console.log('3 · film');
+  console.log('2 · film');
   const composition = await comp(serveUrl, 'Film');
   const name = `tapfour-connect-${composition.height}p${fps}`;
   const dir = path.join(ROOT, 'out/frames/film');

@@ -39,7 +39,7 @@ export const SUPERS: Record<ShotId, Super[]> = {
     { text: 'Meet the\ntapfour app.', at: 0.8, out: 5.4, pos: 'left' },
     { text: 'Know your\nbusiest hours.', at: 6.0, out: 11.5, pos: 'left' }
   ],
-  setup: [{ text: 'We set it all up.', sub: 'Google Business Profile · Website · Menu', at: 0.6, out: 9.5, pos: 'bottom' }],
+  setup: [{ text: 'We set it\nall up.', sub: 'Google Business Profile · Website · Menu', at: 0.6, out: 9.5, pos: 'left' }],
   solo: [],
   end: []
 };

@@ -2,9 +2,8 @@
 import React from 'react';
 import { AbsoluteFill, Img, staticFile, interpolate, Easing } from 'remotion';
 import { C, SANS, MONO, Lockup, ease, clamp, useInOut } from '../brand';
-import { Overlay } from '../three/Scene';
 import { BEATS } from '../timeline';
-import { useT } from '../three/kit';
+import { Overlay, useT } from './kit';
 import plate from '../../public/art/plate-open.json';
 
 const slow = Easing.bezier(0.3, 0, 0.2, 1);

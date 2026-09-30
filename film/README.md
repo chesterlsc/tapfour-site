@@ -1,6 +1,6 @@
 # Tapfour Connect: launch film
 
-A 90-second launch film for Tapfour Connect (tap4.ph), aimed at café and restaurant owners in the Philippines. It is built in Remotion (React/TS) with @remotion/three.
+A 90-second launch film for Tapfour Connect (tap4.ph), aimed at café and restaurant owners in the Philippines. It is built in Remotion (React/TS). Every stand on screen is one of the supplied product renders; there is no generated 3D.
 
 | Deliverable | File |
 |---|---|
@@ -33,6 +33,6 @@ How to rebuild, and how to render the same edit at 4K with `--scale 2`, is cover
 - **Counter tablet "Orders" view.** Uses the "New order · Table 7 · 3 items" notification, the order card and "Accept · send to kitchen" (wording from the site demo in `assets/theme.js`).
 - **Google "write a review" sheet** for Kanto Coffee, with a fictional guest.
 - **Google Business Profile, before and after.**
-- **Generic phone chrome.** Lock screen, NFC tag banner, browser bar and camera viewfinder UI.
+- **Generic phone chrome.** Lock screen, NFC tag banner, browser bar and camera viewfinder UI (the viewfinder image is the supplied white Review + Menu render).
 
 **One change to real UI:** "POWERED BY tapfour" on the public pages gets the leaf mark in front of it, so the lockup is never the wordmark alone.

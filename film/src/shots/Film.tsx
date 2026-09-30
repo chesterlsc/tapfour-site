@@ -4,7 +4,7 @@ import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame
 import { SHOTS, ShotId } from '../timeline';
 import { easeIO, clamp } from '../brand';
 import { ShotOpen, ShotEnd } from './Flat';
-import { ShotReveal, ShotTap, ShotScan, ShotOrder, ShotOwner, ShotSetup, ShotSolo } from './Shots3D';
+import { ShotReveal, ShotTap, ShotScan, ShotOrder, ShotOwner, ShotSetup, ShotSolo } from './Shots';
 
 export const SHOT_COMPONENTS: Record<ShotId, React.FC> = {
   open: ShotOpen, reveal: ShotReveal, tap: ShotTap, scan: ShotScan, order: ShotOrder, owner: ShotOwner, setup: ShotSetup, solo: ShotSolo, end: ShotEnd

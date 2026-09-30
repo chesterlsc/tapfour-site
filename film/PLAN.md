@@ -7,12 +7,12 @@ Everything lives in `film/`, a Remotion (React/TS) project.
 | Path | What it is |
 |---|---|
 | `src/timeline.ts` | Every shot and super timing (seconds), plus the frame rate and resolution helpers. |
-| `src/shots/*` | One composition per shot, plus a `Film` composition that sequences them. |
-| `src/screens/*` | The 2D screen compositions that play on the phone and tablet. They are rendered first as JPEG sequences (`public/screens/<name>/`) and then mapped onto the 3D device screens, one image per frame. |
-| `src/three/*` | The 3D kit: L-stand geometry, phone, tablet, studios (dark reflective, lime cyclorama, warm with leaf gobo, café), post (depth of field, bloom, grain, PBR-neutral tone mapping). |
+| `src/shots/*` | One composition per shot, plus a `Film` composition that sequences them. `kit.tsx` is the shared 2D kit: the stand cut-outs, the studio plate, the phone and tablet bodies, the NFC ripple and the camera layers. |
+| `src/screens/*` | The 2D screen compositions that play on the phone and tablet. They are rendered first as JPEG sequences (`public/screens/<name>/`) and then shown on the device screens, one image per frame. |
+| `public/art/r-*.jpg` | The four supplied product renders (black and white, Review and Review + Menu, one camera, dark studio with floor reflection). Every stand in the film is one of these images. |
 | `capture/*` | Runs the real platform Worker locally with fictional seed data. Playwright then captures the real UI at 3× device scale. |
 | `audio/*` | Original synthesized sound design and music bed (Python + numpy). |
-| `render.mjs` | Renders the pre-pass (café photos, viewfinder), the device screens, then the film and the audio stem. `--scale 2` gives 4K and `--fps 60` gives 60 fps with no layout changes. `--shot <id>` renders a single shot. |
+| `render.mjs` | Renders the device screens, then the film and the audio stem. `--scale 2` gives 4K and `--fps 60` gives 60 fps with no layout changes. `--shot <id>` renders a single shot. |
 | `storyboard.mjs`, `qa.mjs` | The contact sheet (`out/storyboard.png`) and QA stills. |
 
 **Build, in order:**
@@ -20,10 +20,10 @@ Everything lives in `film/`, a Remotion (React/TS) project.
 ```bash
 cd film && npm i
 capture/run.sh                 # local Worker + seed + Playwright capture (real UI) → public/capture/
-node capture/artwork.mjs       # stand face artwork → public/art/
 python3 capture/plate.py       # opening plate from the supplied 4K render
+python3 capture/plates.py      # the empty dark studio the stands and devices sit on
 python3 audio/sound.py         # soundtrack + stem → public/audio/
-node render.mjs                # pre-pass → screens → out/tapfour-connect-1080p30.mp4 (+ out/tapfour-connect-audio.wav)
+node render.mjs                # screens → out/tapfour-connect-1080p30.mp4 (+ out/tapfour-connect-audio.wav)
 node storyboard.mjs            # out/storyboard.png
 node render.mjs --scale 2      # the same film at 3840×2160
 ```
@@ -75,13 +75,13 @@ node render.mjs --scale 2      # the same film at 3840×2160
 | # | Time | Shot | Build | Supers |
 |---|---|---|---|---|
 | 1 | 0:00–0:07 | **Open.** Dark studio, slow push-in on the black Review stand, lime edge, floor reflection. Lockup and "Tapfour Connect" at 0:04. | Supplied 4K render `e94664c9` with a 2.5D push, background extended and a light sweep added. | lockup + "Tapfour Connect" |
-| 2 | 0:07–0:12 | **Reveal.** Lime studio, black and white Review + Menu stands side by side, slow parallax. | 3D (no lime-studio render was supplied). | "Reviews. Menu. Orders. One stand." |
-| 3 | 0:12–0:22 | **One tap.** Phone meets the NFC mark, lime ripple, haptic jolt. Then on screen: NFC banner, browser loading `go.tap4.ph/t/K4NT07`, redirect to the Google write-a-review sheet for Kanto Coffee, stars fill 1 to 5. | 3D stand + phone; screen comp. | "One tap." / "Your Google review. Instantly." |
-| 4 | 0:22–0:32 | **Scan.** White Review + Menu stand. Camera viewfinder drifts with a focus pull, brackets lock, link pill appears, a tap slides up the real menu. Ube Cheese Pandesal flips to Sold out; Calamansi Cold Brew goes ₱190 → ₱175. | 3D + screen comp (real menu, both states captured after real edits in `/app/menu`). | "Scan. A menu that's alive." |
-| 5 | 0:32–0:52 | **Table ordering.** The guest browses and adds 3 items, then taps "Place order · Table 7". The counter tablet shows "New order · Table 7 · 3 items" with a chime; the server opens the order and taps Accept. The guest sees "Order received" change to "Preparing". | 3D phone on a café table, tablet on the counter; built-for-film screens. | "Order from the table." / "Straight to your staff." |
-| 6 | 0:52–1:04 | **Owner app.** The real dashboard on a tablet: TODAY numbers count up, the busiest-hours chart draws in, the "what guests opened" list fills. | 3D tablet; real `/app` driven frame by frame in Playwright. | "Meet the tapfour app." / "Know your busiest hours." |
-| 7 | 1:04–1:14 | **Done for you.** Google Business Profile before and after; the Kanto Coffee page tapfour builds; menu setup in `/app/menu`. | 3D devices; GBP built for the film; page and menu editor real. | "We set it all up." + "Google Business Profile · Website · Menu" |
-| 8 | 1:14–1:24 | **Solo.** High top-down view of the café; five L-stands land one by one, four on tables and one at the cashier. Price card. | 3D. | "Solo. ₱3,000." + "5 stands · Google Review + Live Menu · Tables and cashier" |
+| 2 | 0:07–0:12 | **Reveal.** Dark studio, black and white Review + Menu stands, one behind the other, slow lateral move with parallax and a light sweep across each face. | Supplied renders, cut out and set in depth. | "Reviews. Menu. Orders. One stand." |
+| 3 | 0:12–0:22 | **One tap.** Phone meets the NFC mark, lime ripple, haptic jolt. Then on screen: NFC banner, browser loading `go.tap4.ph/t/K4NT07`, redirect to the Google write-a-review sheet for Kanto Coffee, stars fill 1 to 5. | Supplied render (black Review stand) + phone body; screen comp. | "One tap." / "Your Google review. Instantly." |
+| 4 | 0:22–0:32 | **Scan.** White Review + Menu stand. Camera viewfinder drifts with a focus pull, brackets lock, link pill appears, a tap slides up the real menu. Ube Cheese Pandesal flips to Sold out; Calamansi Cold Brew goes ₱190 → ₱175. | Supplied render (white Review + Menu) beside the phone. The viewfinder is the same render, framed on its QR. Screen comp (real menu, both states captured after real edits in `/app/menu`). | "Scan. A menu that's alive." |
+| 5 | 0:32–0:52 | **Table ordering.** The guest browses and adds 3 items, then taps "Place order · Table 7". The counter tablet shows "New order · Table 7 · 3 items" with a chime; the server opens the order and taps Accept. The guest sees "Order received" change to "Preparing". | Phone with the black Review + Menu render behind it, out of focus; tablet standing on the studio floor; built-for-film screens. | "Order from the table." / "Straight to your staff." |
+| 6 | 0:52–1:04 | **Owner app.** The real dashboard on a tablet: TODAY numbers count up, the busiest-hours chart draws in, the "what guests opened" list fills. | Tablet on the studio floor, push-in on the chart; real `/app` driven frame by frame in Playwright. | "Meet the tapfour app." / "Know your busiest hours." |
+| 7 | 1:04–1:14 | **Done for you.** Google Business Profile before and after; the Kanto Coffee page tapfour builds; menu setup in `/app/menu`. | Phone, then tablet, in the dark studio; GBP built for the film; page and menu editor real. | "We set it all up." + "Google Business Profile · Website · Menu" |
+| 8 | 1:14–1:24 | **Solo.** Five Review + Menu stands land one by one in a row (Table 1–4, Cashier), their reflections meeting them on the floor; the row moves aside for the price card. | Supplied renders. | "Solo. ₱3,000." + "5 stands · Google Review + Live Menu · Tables and cashier" |
 | 9 | 1:24–1:30 | **End card.** Black, lockup, master tagline, tap4.ph. | 2D | tagline |
 
 ## Asset map
@@ -89,9 +89,11 @@ node render.mjs --scale 2      # the same film at 3840×2160
 | Shot | Screen / asset | Source |
 |---|---|---|
 | 1 | Black Review stand, dark studio | Supplied render (upload `e94664c9`, 2160×3840) |
-| 2, 3, 4, 5, 8 | Stand artwork: "Leave us a review" and "Review or view our menu", black and white | Rebuilt as vector artwork from the renders and `assets/tapfour-l-*.jpg` (`capture/artwork.mjs`): brand fonts, favicon leaf paths, Google G, NFC glyph. The QR is generated with the platform's own `qrcode-generator` and has a leaf centre like the product. It encodes `https://tap4.ph`, so a viewer scanning the film lands on the real site rather than a demo code. It was verified to decode. |
-| 4 | Camera viewfinder | Rendered from the same 3D scene, from the phone's camera position (`Viewfinder` composition), so the screen shows exactly what the phone points at. |
-| 7 | Photos on the Google Business Profile | Rendered from the 3D café and warm-studio scenes (`Photos` composition). |
+| 2, 3, 4, 5, 8 | Every stand: black and white, Review and Review + Menu | The four supplied renders (`public/art/r-*.jpg`), used as they are. They are cut out with a soft mask, set on the empty studio plate, and moved in 2.5D. Landings split each render at the floor line so the reflection moves against the stand. The NFC ripple and light sweeps are mapped onto the stand face with a homography (`kit.tsx`, `quadMatrix`). |
+| all device shots | Empty dark studio | `capture/plates.py`, grown from the renders' own background (edge colours, long feather, grain). |
+| 4 | Camera viewfinder | The white Review + Menu render, framed on its QR with handheld drift and a focus pull (`ScreenScan.tsx`). |
+| 7 | Photos on the Google Business Profile | Crops of the supplied renders. |
+| 3–7 | Phone and tablet | Layered CSS bodies: polished titanium rim with real thickness (stacked side-wall layers, so the edge shows when the device turns), side buttons, black glass bezel, camera island, cover-glass reflection that moves with the turn, floor reflection when standing. Flagship proportions (phone 393×852 pt screen, tablet 1180×820), no logos. |
 | 3 | `go.tap4.ph/t/K4NT07` → `g.page/...` redirect | Real 302 from the local Worker. The URLs shown in the browser bar are the ones it returned. |
 | 4 | Live menu, before and after | **Real** `/menu/kanto-coffee`, captured before and after real `/app/menu` edits (sold out + price). |
 | 6 | Owner dashboard | **Real** `/app` overview, Kanto Coffee seed data. |
@@ -122,13 +124,13 @@ Each of these is built with the repo's own tokens and `base.css` components (fon
   - tapfour has no website-build service. The closest real product is the hosted business page (`/p/<slug>`, the "Page build" service, "My page" in the app), and that is what shot 7 shows.
   - The subline keeps the brief's wording; see the summary for this flag.
 - **Solo pricing.** The price card adds a small "ONE-TIME · tapfour app ₱299/mo" line so the ₱3,000 is not misread as all-in.
-- **Renders.**
+- **Renders only, no generated 3D.**
   - `./assets/renders/` (16 stills) was not in the repo.
-  - I used the four renders supplied in the chat (4K, dark studio with floor reflection) and the repo's `tapfour-l-*.jpg` photos as reference.
-  - There are no lime-studio or leaf-shadow stills, so those setups are 3D. The "Connect with us" render is never used.
+  - An earlier cut modelled the stand, café, lime studio and props in 3D. On review the model read as wrong and the generated sets as artificial, so the film was rebuilt on the supplied renders alone: every stand is a real render, every set is the renders' own dark studio.
+  - The "Connect with us" render is never used.
 - **Lockup on real pages.** The public menu and business pages print "POWERED BY tapfour" as text without the leaf. Rule 4 of the brief does not allow that, so the capture adds the repo's own `.tf-mark` in front of the wordmark (`capture/capture.mjs`, `fixLockup`). This is the only change made to real UI.
 - **Orders tile.** Not shown, for the reason given under "Orders count on the dashboard" above.
-- **Hands.** A procedural 3D hand would not pass as natural, so device shots are framed so the hand is just out of frame (the phone carries handheld drift), or the device rests on a table or counter. Touches show as soft touch points.
+- **Hands.** None. A drawn hand would not pass as real, so the phone floats in the studio with a slow handheld drift, the tablet stands on the floor, and touches show as soft touch points.
 
 ## Pitch (tap4.ph hero)
 
@@ -151,18 +153,19 @@ I pulled one frame per shot from `out/tapfour-connect-1080p30.mp4` with ffmpeg a
 | Legibility at 1080p | Every super holds at least 1.5 s. Device screens are framed large enough to read: the Google sheet, live menu, order status, the tablet's order card, and the dashboard numbers and chart after the push-in. |
 | Overflow and placeholder text | None. The only placeholders are the real app's own input hints ("Sagada Latte", "165") in `/app/menu`. |
 | Price | ₱3,000 one-time for Solo, and ₱299/mo for the app on the card. Both match the repo. |
-| Devices | Flagship proportions, thin bezels, clearcoat glass reflections, no logos. They are correctly scaled against the 10×15 cm stand. |
+| Devices | Flagship proportions, thin bezels, titanium rim with visible thickness when turned, cover-glass reflections, no logos. Scaled so the phone reads as held nearer the camera than the 10×15 cm stand. |
 | Off-product content | Only the Review and Review + Menu stands appear. The "Connect with us" stand, other products and competitors never appear. |
 
 **Fixed during QA:**
-- Depth of field was stuck on each render chunk's first frame; it now tracks every frame.
+- The first cut's 3D stand model and generated sets (café, lime studio, props) were replaced with the supplied renders and their own dark studio.
+- The scan brackets now lock on a portrait box, because the QR reads taller than wide on the leaning stand face.
+- The Solo row sat low in frame; it now centres with the price card.
 - The "after" menu capture was served from the 15 s cache; it is now loaded fresh and checked.
 - The dashboard's TODAY tiles showed 1 because of when the seed ran; the seed now always fills today.
-- The phone in the tap shot looked like it sliced through the stand; it is now shown in profile.
-- A floor z-fight patch in the Solo shot.
 - The pixel format came out as yuvj420p; it is now yuv420p.
 
 **Not done, or done differently from the brief:**
-- **Motion blur.** None. Multi-sample camera blur would mean several software-GL contexts per frame. Fast moves are kept short and eased instead.
-- **Hands.** None. A procedural hand would not look natural, so phones are hand-held off frame with handheld drift, and touches show as touch points.
+- **Motion blur.** None. Moves are slow and eased, so none is needed.
+- **Hands.** None. A drawn hand would not look real, so the phone floats with a handheld drift and touches show as touch points.
+- **Stand angles.** Every stand is seen from the one camera angle the renders were made from. Moves are 2.5D (push, pan, parallax, depth of field), never an orbit, so nothing has to be invented.
 - **"Website".** Shot 7 shows the hosted business page (`/p/kanto-coffee`), because the repo has no website-build service.
