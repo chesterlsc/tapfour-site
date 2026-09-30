@@ -2,6 +2,8 @@ import React from 'react';
 import { Composition } from 'remotion';
 import { DESIGN, DEFAULT_FPS, FILM_SECONDS, SHOTS, shot } from './timeline';
 import { useFonts } from './brand';
+import { LookDev } from './shots/LookDev';
+import { Viewfinder } from './shots/Stills';
 import { ScreenTap } from './screens/ScreenTap';
 import { ScreenScan } from './screens/ScreenScan';
 import { ScreenOrderGuest, ScreenOrderTablet, ScreenDash, ScreenSetupPhone, ScreenSetupTablet } from './screens/Screens';
@@ -37,6 +39,10 @@ export const Root: React.FC = () => (
     ))}
     {screens.map(([id, C, w, h, sec]) => (
       <Composition key={id} id={id} component={withFonts(C)} {...base} calculateMetadata={meta(w, h, sec)} />
+    ))}
+    <Composition id="Viewfinder" component={withFonts(Viewfinder)} {...base} calculateMetadata={meta(PH.w * 2, PH.h * 2, 5)} />
+    {(['black-review', 'black-menu', 'white-review', 'white-menu'] as const).map(s => (
+      <Composition key={s} id={`LookDev-${s}`} component={withFonts(LookDev)} {...base} defaultProps={{ finish: s.split('-')[0] as 'black', design: s.split('-')[1] as 'review' }} calculateMetadata={meta(1080, 1920, 1)} />
     ))}
   </>
 );

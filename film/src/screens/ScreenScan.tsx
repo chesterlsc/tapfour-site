@@ -1,17 +1,16 @@
-// Shot 4 phone screen: camera viewfinder on the white Review + Menu stand (the supplied product render, framed on
-// its QR with a handheld drift and a focus pull), brackets lock on the QR, link pill, tap → the REAL live menu (/menu/kanto-coffee), then the
+// Shot 4 phone screen: camera viewfinder over the white Review + Menu stand (frames rendered by the Viewfinder
+// 3D composition), brackets lock on the QR, link pill, tap → the REAL live menu (/menu/kanto-coffee), then the
 // REAL owner edits land: Ube Cheese Pandesal → Sold out, Calamansi Cold Brew ₱190 → ₱175 (captured after the
 // edits were made in /app/menu).
 import React from 'react';
-import { AbsoluteFill, Img, staticFile } from 'remotion';
-import { C, SANS, MONO, ease, easeIO } from '../brand';
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from 'remotion';
+import { C, SANS, MONO, ease } from '../brand';
 import { BEATS } from '../timeline';
 import { Device, StatusBar, BrowserBar, PH, Touch, Page, cap, useSec, tw } from './ui';
 import meta from '../../public/capture/meta.json';
 
 const B = BEATS.scan;
-// The render (2160×3840) with its QR (1440, 1642) centred in the viewfinder at 0.6 css px per render px.
-const VF = { w: 2160, h: 3840, qx: 1440, qy: 1642, s: 0.6 };
+export const VF_FRAMES = 150; // viewfinder frames rendered (5 s at 30 fps)
 
 const row = (name: string) => meta.menuBefore.items.find(i => i.text === name)!;
 
@@ -21,15 +20,15 @@ const Bracket: React.FC<{ x: number; y: number; s: number; rot: number; c: strin
 
 export const ScreenScan: React.FC = () => {
   const t = useSec();
+  const f = useCurrentFrame();
+  const vf = Math.min(VF_FRAMES - 1, f);
   const lock = tw(t, B.lock - 0.25, B.lock + 0.25, 0, 1, ease);
   const pill = tw(t, B.pill, B.pill + 0.35, 0, 1, ease);
   const up = tw(t, B.menuUp, B.menuUp + 0.6, 0, 1, ease);
   const scroll = tw(t, B.menuUp + 0.9, B.menuUp + 1.8, 0, 110);
   // brackets: loose & breathing while searching → snap to the QR (centred, ~150 px)
-  // the QR reads taller than wide in the render (the face leans back), so the brackets settle on a portrait box
-  const hx = 128 - lock * 42 + Math.sin(t * 5) * 3 * (1 - lock), hy = 128 - lock * 24 + Math.sin(t * 5) * 3 * (1 - lock);
+  const half = 128 - lock * 50 + Math.sin(t * 5) * 3 * (1 - lock);
   const cx = 196.5, cy = 426;
-  const settle = tw(t, 0.4, B.lock, 0, 1, easeIO);
   const bc = lock > 0.5 ? '#ffffff' : 'rgba(255,255,255,.75)';
   const top = PH.status + PH.bar;
   const pandesal = row('Ube Cheese Pandesal'), calamansi = row('Calamansi Cold Brew');
@@ -39,12 +38,7 @@ export const ScreenScan: React.FC = () => {
   return (
     <Device w={PH.w} h={PH.h} bg="#000">
       <AbsoluteFill>
-        {/* handheld: searching drift that settles as the brackets lock; focus pulls in from soft */}
-        <Img src={staticFile('art/vf-white-menu.jpg')} style={{ position: 'absolute', width: VF.w * VF.s, height: VF.h * VF.s,
-          left: cx - VF.qx * VF.s + (1 - settle) * (Math.sin(t * 1.7) * 22 + 34) + Math.sin(t * 2.9) * 1.6,
-          top: cy - VF.qy * VF.s + (1 - settle) * (Math.cos(t * 1.3) * 16 - 40) + Math.cos(t * 3.4) * 1.4,
-          transform: `scale(${1.1 - 0.1 * settle}) rotate(${(1 - settle) * -2.5}deg)`, transformOrigin: `${VF.qx * VF.s}px ${VF.qy * VF.s}px`,
-          filter: `blur(${tw(t, 0.5, 1.6, 7, 0)}px)` }} />
+        <Img src={staticFile(`screens/viewfinder/${String(vf).padStart(4, '0')}.jpg`)} style={{ width: PH.w, height: PH.h }} />
         {/* camera UI (generic) */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 96, background: 'linear-gradient(rgba(0,0,0,.55), transparent)' }} />
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 190, background: 'rgba(0,0,0,.62)' }}>
@@ -57,13 +51,13 @@ export const ScreenScan: React.FC = () => {
         </div>
         {/* brackets */}
         <div style={{ opacity: tw(t, 0.9, 1.4) * (1 - tw(t, B.tapPill, B.tapPill + 0.2)) }}>
-          <Bracket x={cx - hx} y={cy - hy} s={34} rot={0} c={bc} />
-          <Bracket x={cx + hx} y={cy - hy} s={34} rot={90} c={bc} />
-          <Bracket x={cx + hx} y={cy + hy} s={34} rot={180} c={bc} />
-          <Bracket x={cx - hx} y={cy + hy} s={34} rot={270} c={bc} />
+          <Bracket x={cx - half} y={cy - half} s={34} rot={0} c={bc} />
+          <Bracket x={cx + half} y={cy - half} s={34} rot={90} c={bc} />
+          <Bracket x={cx + half} y={cy + half} s={34} rot={180} c={bc} />
+          <Bracket x={cx - half} y={cy + half} s={34} rot={270} c={bc} />
         </div>
         {/* link pill */}
-        <div style={{ position: 'absolute', left: '50%', top: cy + 128, transform: `translate(-50%, ${(1 - pill) * 10}px) scale(${0.9 + pill * 0.1 - (t > B.tapPill - 0.1 && t < B.tapPill + 0.2 ? 0.04 : 0)})`, opacity: pill, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 99, background: '#f4f4f0', color: '#111', font: `600 14px ${SANS}`, whiteSpace: 'nowrap', boxShadow: '0 6px 20px rgba(0,0,0,.35)' }}>
+        <div style={{ position: 'absolute', left: '50%', top: cy + 104, transform: `translate(-50%, ${(1 - pill) * 10}px) scale(${0.9 + pill * 0.1 - (t > B.tapPill - 0.1 && t < B.tapPill + 0.2 ? 0.04 : 0)})`, opacity: pill, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 99, background: '#f4f4f0', color: '#111', font: `600 14px ${SANS}`, whiteSpace: 'nowrap', boxShadow: '0 6px 20px rgba(0,0,0,.35)' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.6" strokeLinecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
           go.tap4.ph/q/K4NT01/menu
         </div>
@@ -88,7 +82,7 @@ export const ScreenScan: React.FC = () => {
           <StatusBar />
         </AbsoluteFill>
       )}
-      <Touch x={196} y={cy + 148} at={B.tapPill} t={t} />
+      <Touch x={196} y={cy + 124} at={B.tapPill} t={t} />
     </Device>
   );
 };
