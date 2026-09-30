@@ -182,13 +182,15 @@ const deviceBody = (w: number, h: number, r: number, depth: number, bevel: numbe
   g.translate(0, 0, -(depth - bevel * 2) / 2);
   return g;
 };
-const useDeviceMats = (frame = '#55565b') => useMemo(() => ({
-  frame: new THREE.MeshPhysicalMaterial({ color: frame, metalness: 1, roughness: 0.28, clearcoat: 0.4 }),
-  glass: new THREE.MeshPhysicalMaterial({ color: '#030304', roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.01 }),
+// satin: no clearcoat and a slightly rougher frame and bezel glass. The tablet's long top edge otherwise catches the key
+// spotlight as a pin-sharp highlight that bloom blows up into a sun over the status bar.
+const useDeviceMats = (frame = '#55565b', satin = false) => useMemo(() => ({
+  frame: new THREE.MeshPhysicalMaterial(satin ? { color: frame, metalness: 1, roughness: 0.4 } : { color: frame, metalness: 1, roughness: 0.28, clearcoat: 0.4 }),
+  glass: new THREE.MeshPhysicalMaterial(satin ? { color: '#030304', roughness: 0.16 } : { color: '#030304', roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.01 }),
   back: new THREE.MeshPhysicalMaterial({ color: '#232428', roughness: 0.38, metalness: 0.1, clearcoat: 0.6, clearcoatRoughness: 0.35 }),
   lens: new THREE.MeshPhysicalMaterial({ color: '#050507', roughness: 0.02, metalness: 0.2, clearcoat: 1, iridescence: 0.6, iridescenceIOR: 1.8 }),
   ring: new THREE.MeshPhysicalMaterial({ color: '#8a8c90', metalness: 1, roughness: 0.2 })
-}), [frame]);
+}), [frame, satin]);
 const screenMat = (tex: THREE.Texture, glow = 1) => new THREE.MeshPhysicalMaterial({
   // anti-reflective cover glass: soft reflections of the softboxes, no blown hot spot over the UI
   color: '#000000', emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: glow, roughness: 1, specularIntensity: 0, clearcoat: 0.22, clearcoatRoughness: 0.05, toneMapped: false
@@ -227,7 +229,7 @@ export const Phone: React.FC<React.JSX.IntrinsicElements['group'] & { tex?: THRE
 
 export const TABLET = { W: 25.4, H: 17.9, D: 0.63, R: 1.4, SW: 24.56, SH: 17.07 }; // screen 1180×820 css
 export const Tablet: React.FC<React.JSX.IntrinsicElements['group'] & { tex?: THREE.Texture | null; glow?: number }> = ({ tex, glow = 1.12, ...props }) => {
-  const m = useDeviceMats('#6d6f73');
+  const m = useDeviceMats('#6d6f73', true);
   const { W, H, D, R, SW, SH } = TABLET;
   const g = useMemo(() => ({ body: deviceBody(W, H, R, D, 0.14), screen: shapeGeo(squircleRect(SW, SH, R - 0.35), 32), back: shapeGeo(squircleRect(W - 0.3, H - 0.3, R - 0.15), 24) }), []);
   const sm = useMemo(() => tex ? screenMat(tex, glow) : m.glass, [tex, glow]);
