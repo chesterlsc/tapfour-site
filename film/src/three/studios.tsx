@@ -68,7 +68,7 @@ export const Post: React.FC<{ focus?: THREE.Vector3 | [number, number, number]; 
 const GlossFloor: React.FC = () => {
   const { size } = useThree();
   const mirror = useMemo(() => {
-    const r = new Reflector(new THREE.PlaneGeometry(800, 800), { textureWidth: size.width, textureHeight: size.height, color: 0x8e8e8e, clipBias: 0.002 });
+    const r = new Reflector(new THREE.PlaneGeometry(800, 800), { textureWidth: size.width, textureHeight: size.height, color: 0xc4c4c4, clipBias: 0.002 });
     r.rotation.x = -Math.PI / 2;
     return r;
   }, [size.width, size.height]);
@@ -77,7 +77,7 @@ const GlossFloor: React.FC = () => {
       <primitive object={mirror} />
       <mesh rotation-x={-Math.PI / 2} position-y={0.012} receiveShadow>
         <planeGeometry args={[800, 800]} />
-        <meshPhysicalMaterial color="#070806" transparent opacity={0.64} roughness={0.55} clearcoat={0.4} clearcoatRoughness={0.3} depthWrite={false} />
+        <meshPhysicalMaterial color="#070806" transparent opacity={0.54} roughness={0.55} clearcoat={0.4} clearcoatRoughness={0.3} depthWrite={false} />
       </mesh>
     </>
   );
@@ -97,7 +97,9 @@ export const DarkStudio: React.FC<{ children: React.ReactNode; glow?: number }> 
         <Lightformer form="rect" map={sb} intensity={7 * glow} color="#ffffff" position={[60, 55, 10]} scale={[45, 90, 1]} target={[0, 10, 0]} />
         <Lightformer form="rect" map={st} intensity={2.2 * glow} color="#ffffff" position={[-55, 30, 25]} scale={[18, 70, 1]} target={[0, 10, 0]} />
         <Lightformer form="rect" map={sb} intensity={1.5 * glow} color="#ffffff" position={[-10, 30, 70]} scale={[60, 50, 1]} target={[0, 8, 0]} />
-        <Lightformer form="rect" map={st} intensity={9 * glow} color="#ffffff" position={[55, 35, 45]} scale={[16, 60, 1]} target={[0, 10, 0]} />
+        <Lightformer form="rect" map={st} intensity={8 * glow} color="#ffffff" position={[48, 14, 43]} scale={[9, 70, 1]} target={[0, 8, 0]} />
+        {/* low, narrow and to the right: the gloss streak down the black face's right edge in the renders */}
+        <Lightformer form="rect" map={sb} intensity={8 * glow} color="#ffffff" position={[42.6, 4.5, 42.3]} scale={[4, 18, 1]} target={[0, 0, 0]} />
         <Lightformer form="ring" intensity={0.25} color="#c8f23c" position={[-20, 40, -70]} scale={30} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={0.3} color="#ffffff" position={[0, 90, 0]} rotation-x={Math.PI / 2} scale={[80, 80, 1]} />
       </Environment>

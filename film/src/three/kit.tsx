@@ -78,7 +78,7 @@ export const LIME = new THREE.Color('#c8f23c');
    One 3 mm sheet of glossy acrylic: the printed 10 × 15 cm face stands at the FRONT and leans back 8°; a tight bend
    at its foot turns the sheet backwards into a 6.2 cm foot that runs under the face along the table. Stand-local
    axes: +z faces the viewer, the bend's outer edge touches the table at z ≈ 0, the foot runs to z = −FOOT. */
-export const STAND = { W: 10, H: 15, T: 0.3, FOOT: 6.2, R: 0.35, TILT: THREE.MathUtils.degToRad(8), CORNER: 0.6, FOOT_R: 0.6 };
+export const STAND = { W: 10, H: 15, T: 0.25, FOOT: 6.2, R: 0.7, TILT: THREE.MathUtils.degToRad(8), CORNER: 0.6, FOOT_R: 0.6, EDGE: 0.05 };
 // The bend's mid-surface: centre of curvature above the table; phi 0 = along the foot (heading +z), END = up the face.
 const BEND_END = Math.PI / 2 + STAND.TILT;
 const bendAt = (phi: number) => {
@@ -116,14 +116,18 @@ export type Finish = 'black' | 'white';
 export type Design = 'review' | 'menu';
 export const Stand: React.FC<React.JSX.IntrinsicElements['group'] & { finish: Finish; design: Design; shadow?: boolean }> = ({ finish, design, shadow = true, ...props }) => {
   const art = useArt(`${design}-${finish}.png`);
-  const { W, H, T, FOOT, TILT, CORNER, FOOT_R } = STAND;
+  const { W, H, T, FOOT, TILT, CORNER, FOOT_R, EDGE: b } = STAND;
   const parts = useMemo(() => {
     const faceH = H;
-    const face = new THREE.ExtrudeGeometry(roundedRect(W, faceH, CORNER, 0, 0, faceH / 2), { depth: T, bevelEnabled: false, curveSegments: 20 });
-    face.translate(0, 0, -T / 2);
+    // polished, softly rounded cut edges (a small bevel all round), like the acrylic in the renders
+    const sheet = (shape: THREE.Shape) => {
+      const g = new THREE.ExtrudeGeometry(shape, { depth: T - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b, bevelSegments: 3, curveSegments: 20 });
+      g.translate(0, 0, -(T / 2 - b));
+      return g;
+    };
+    const face = sheet(roundedRect(W - 2 * b, faceH - b, CORNER - b, 0, 0, (faceH - b) / 2));
     // the foot, drawn in its own plane (y = depth back from the bend), then laid flat pointing backwards
-    const foot = new THREE.ExtrudeGeometry(roundedRect(W, FOOT, FOOT_R, 0, 0, FOOT / 2), { depth: T, bevelEnabled: false, curveSegments: 16 });
-    foot.translate(0, 0, -T / 2);
+    const foot = sheet(roundedRect(W - 2 * b, FOOT - b, FOOT_R - b, 0, 0, (FOOT - b) / 2));
     const artGeo = shapeGeo(roundedRect(W, faceH, CORNER, 0, 0, faceH / 2), 20);
     return { bend: bendGeometry(), face, foot, artGeo };
   }, []);
@@ -132,7 +136,7 @@ export const Stand: React.FC<React.JSX.IntrinsicElements['group'] & { finish: Fi
     // glossy acrylic: piano-black with a clear lacquer; white is a milky, satin-gloss sheet (see the renders)
     const body = new THREE.MeshPhysicalMaterial(black
       ? { color: '#020203', roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.015, reflectivity: 0.7 }
-      : { color: '#f2f2ec', roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12 });
+      : { color: '#f6f6f0', roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12 });
     // cut edges: the renders show a thin lime line on the black sheet's edge, a pale green-white edge on the white one
     const edge = new THREE.MeshPhysicalMaterial(black
       ? { color: '#0c0d0a', emissive: LIME, emissiveIntensity: 0.025, roughness: 0.2, clearcoat: 0.8, clearcoatRoughness: 0.15 }
@@ -145,11 +149,11 @@ export const Stand: React.FC<React.JSX.IntrinsicElements['group'] & { finish: Fi
   const e = faceBase();
   return (
     <group {...props}>
-      {/* foot and face tuck 0.5 mm into the bend so their end walls never show as a seam */}
-      <mesh geometry={parts.foot} material={mats.arr} rotation={[-Math.PI / 2, 0, 0]} position={[0, T / 2, 0.05]} castShadow={shadow} receiveShadow />
+      {/* foot and face start exactly where the bend ends; their rounded end edges sit just inside the bend */}
+      <mesh geometry={parts.foot} material={mats.arr} rotation={[-Math.PI / 2, 0, 0]} position={[0, T / 2, 0]} castShadow={shadow} receiveShadow />
       <mesh geometry={parts.bend} material={mats.arr} castShadow={shadow} receiveShadow />
       <group position={e} rotation={[-TILT, 0, 0]}>
-        <mesh geometry={parts.face} material={mats.arr} position={[0, -0.05, 0]} castShadow={shadow} receiveShadow />
+        <mesh geometry={parts.face} material={mats.arr} castShadow={shadow} receiveShadow />
         <mesh geometry={parts.artGeo} material={mats.artM} position={[0, 0, T / 2 + 0.004]} receiveShadow />
       </group>
     </group>
