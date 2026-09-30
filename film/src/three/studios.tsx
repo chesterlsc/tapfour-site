@@ -253,7 +253,8 @@ export const Cafe: React.FC<{ children: React.ReactNode; wall?: boolean; fog?: b
       </Environment>
       <hemisphereLight args={['#ffe4c4', '#2b1a0f', 0.55]} />
       <directionalLight position={[30, 80, 40]} intensity={1.4} color="#fff0da" castShadow shadow-mapSize={[Q.shadow, Q.shadow]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} shadow-radius={8} shadow-bias={-0.0004} />
-      <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[240, 140]} /><meshPhysicalMaterial map={wood} roughness={0.5} clearcoat={0.4} clearcoatRoughness={0.35} /></mesh>
+      {/* the tabletop; the Solo room brings its own floor (skipping this avoids z-fighting at a distance) */}
+      {wall && <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[240, 140]} /><meshPhysicalMaterial map={wood} roughness={0.5} clearcoat={0.4} clearcoatRoughness={0.35} /></mesh>}
       {wall && <>
         <mesh position={[0, 80, -140]}><planeGeometry args={[900, 400]} /><meshStandardMaterial color="#3b2a1d" roughness={0.9} /></mesh>
         <Pendant position={[-70, 70, -90]} /><Pendant position={[60, 64, -120]} /><Pendant position={[150, 72, -60]} />

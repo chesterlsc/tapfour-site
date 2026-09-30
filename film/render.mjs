@@ -80,7 +80,8 @@ if (a.shot) {
   const stem = path.join(ROOT, 'public/audio/tapfour-connect.wav');
   const bin = path.join(ROOT, 'node_modules/@remotion/compositor-linux-x64-gnu');
   execFileSync(path.join(bin, 'ffmpeg'), ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', path.join(dir, '%04d.jpg'), ...(existsSync(stem) ? ['-i', stem] : []),
-    '-c:v', 'libx264', '-crf', '18', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+    '-vf', 'scale=in_range=pc:out_range=tv:out_color_matrix=bt709,format=yuv420p', '-c:v', 'libx264', '-crf', '18', '-preset', 'slow', '-pix_fmt', 'yuv420p',
+    '-color_range', 'tv', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart',
     ...(existsSync(stem) ? ['-c:a', 'aac', '-b:a', '256k', '-shortest'] : []), path.join(ROOT, `out/${name}.mp4`)], { stdio: 'inherit', env: { ...process.env, LD_LIBRARY_PATH: bin } });
   if (existsSync(stem)) copyFileSync(stem, path.join(ROOT, 'out/tapfour-connect-audio.wav'));
   console.log(`  → out/${name}.mp4 (${((Date.now() - t0) / 60000).toFixed(1)} min)`);

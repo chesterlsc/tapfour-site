@@ -138,3 +138,31 @@ Each of these is built with the repo's own tokens and `base.css` components (fon
   2. Reviews, menu and orders. On one stand.
   3. Your café, one tap away.
 - **Product description:** Tapfour Connect is a glossy stand for every table: guests tap to leave a Google review, scan for a live menu that's always up to date, and, with table ordering, send orders straight to your staff, while the tapfour app shows you what's working.
+
+## QA (final 1080p file)
+
+I pulled one frame per shot from `out/tapfour-connect-1080p30.mp4` with ffmpeg and checked each against the brief.
+
+**File.** H.264 yuv420p (BT.709, limited range), 1920×1080, 30 fps, 2,700 frames, 90.0 s, AAC 48 kHz stereo.
+
+| Check | Result |
+|---|---|
+| Logo lockup | The leaf is always beside "tapfour": opening, end card, stand artwork, app sidebar, and the "POWERED BY" footers (see "Lockup on real pages"). The mark and wordmark never appear alone. |
+| Legibility at 1080p | Every super holds at least 1.5 s. Device screens are framed large enough to read: the Google sheet, live menu, order status, the tablet's order card, and the dashboard numbers and chart after the push-in. |
+| Overflow and placeholder text | None. The only placeholders are the real app's own input hints ("Sagada Latte", "165") in `/app/menu`. |
+| Price | ₱3,000 one-time for Solo, and ₱299/mo for the app on the card. Both match the repo. |
+| Devices | Flagship proportions, thin bezels, clearcoat glass reflections, no logos. They are correctly scaled against the 10×15 cm stand. |
+| Off-product content | Only the Review and Review + Menu stands appear. The "Connect with us" stand, other products and competitors never appear. |
+
+**Fixed during QA:**
+- Depth of field was stuck on each render chunk's first frame; it now tracks every frame.
+- The "after" menu capture was served from the 15 s cache; it is now loaded fresh and checked.
+- The dashboard's TODAY tiles showed 1 because of when the seed ran; the seed now always fills today.
+- The phone in the tap shot looked like it sliced through the stand; it is now shown in profile.
+- A floor z-fight patch in the Solo shot.
+- The pixel format came out as yuvj420p; it is now yuv420p.
+
+**Not done, or done differently from the brief:**
+- **Motion blur.** None. Multi-sample camera blur would mean several software-GL contexts per frame. Fast moves are kept short and eased instead.
+- **Hands.** None. A procedural hand would not look natural, so phones are hand-held off frame with handheld drift, and touches show as touch points.
+- **"Website".** Shot 7 shows the hosted business page (`/p/kanto-coffee`), because the repo has no website-build service.
