@@ -5,6 +5,7 @@ import { renderStill, selectComposition } from '@remotion/renderer';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import path from 'node:path';
+import { rmSync as rmBundle } from 'node:fs';
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
 // A representative moment in each shot (seconds into the film).
@@ -24,3 +25,4 @@ for (const [id, , sec] of PICKS) {
   console.log('  frame', id);
 }
 execFileSync('python3', [path.join(ROOT, 'capture/contact.py'), JSON.stringify(PICKS)], { stdio: 'inherit', cwd: ROOT });
+rmBundle(serveUrl, { recursive: true, force: true }); // the bundle holds a copy of public/

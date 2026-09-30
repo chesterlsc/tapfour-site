@@ -19,7 +19,13 @@ const browserExecutable = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-
 const chromiumOptions = { gl: 'swangle' };
 const common = { inputProps, browserExecutable, chromiumOptions, timeoutInMilliseconds: 600000, logLevel: 'error' };
 
-const bundled = async () => bundle({ entryPoint: path.join(ROOT, 'src/index.ts'), publicDir: path.join(ROOT, 'public') });
+// Each bundle copies public/ (~0.5 GB of screen frames) into the temp dir; drop the previous one when re-bundling.
+let lastBundle = null;
+const bundled = async () => {
+  if (lastBundle) rmSync(lastBundle, { recursive: true, force: true });
+  return (lastBundle = await bundle({ entryPoint: path.join(ROOT, 'src/index.ts'), publicDir: path.join(ROOT, 'public') }));
+};
+process.on('exit', () => { if (lastBundle) rmSync(lastBundle, { recursive: true, force: true }); });
 const comp = (serveUrl, id) => selectComposition({ serveUrl, id, ...common });
 // onProgress is throttled, so log whenever another 25 frames are done rather than on exact multiples.
 const progress = label => { let last = -1; return ({ renderedFrames = 0 }) => {
