@@ -7,7 +7,7 @@
 import { bundle } from '@remotion/bundler';
 import { renderFrames, renderMedia, selectComposition } from '@remotion/renderer';
 import { parseArgs } from 'node:util';
-import { mkdirSync, rmSync, copyFileSync, existsSync, readdirSync, renameSync } from 'node:fs';
+import { mkdirSync, rmSync, copyFileSync, existsSync, readdirSync, renameSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
@@ -63,7 +63,7 @@ if (a.shot) {
   console.log(`\n  → out/shots/${a.shot}.mp4`);
 } else if (!a.only || a.only === 'film') {
   // The film renders in chunks of 150 frames, each in a fresh browser (long-lived software-GL sessions slow down),
-  // into out/frames/film/NNNN.jpg — so a stopped render resumes where it left off — then ffmpeg encodes it.
+  // into out/frames/film/NNNN.jpg — so a stopped render resumes at its first missing frame — then ffmpeg encodes it.
   console.log('3 · film');
   const composition = await comp(serveUrl, 'Film');
   const name = `tapfour-connect-${composition.height}p${fps}`;
@@ -71,14 +71,20 @@ if (a.shot) {
   mkdirSync(dir, { recursive: true });
   const t0 = Date.now(), N = composition.durationInFrames, CH = 150;
   const have = f => existsSync(path.join(dir, String(f).padStart(4, '0') + '.jpg'));
-  for (let s0 = 0; s0 < N; s0 += CH) {
-    const s1 = Math.min(N, s0 + CH) - 1;
-    if (Array.from({ length: s1 - s0 + 1 }, (_, k) => s0 + k).every(have)) continue;
+  // Keep the finished frames of a chunk that was interrupted (a complete JPEG ends with the EOI marker FF D9).
+  const keep = tmp => { for (const f of readdirSync(tmp)) {
+    const m = f.match(/^(\d+)\.jpe?g$/), buf = m && readFileSync(path.join(tmp, f));
+    if (buf && buf.length > 2 && buf[buf.length - 2] === 0xff && buf[buf.length - 1] === 0xd9) renameSync(path.join(tmp, f), path.join(dir, String(Number(m[1])).padStart(4, '0') + '.jpg'));
+  } rmSync(tmp, { recursive: true, force: true }); };
+  for (const d of readdirSync(dir)) if (d.startsWith('.chunk-')) keep(path.join(dir, d));
+  for (let c0s = 0; c0s < N; c0s += CH) {
+    const s1 = Math.min(N, c0s + CH) - 1;
+    let s0 = c0s; while (s0 <= s1 && have(s0)) s0++;
+    if (s0 > s1) continue;
     const tmp = path.join(dir, `.chunk-${s0}`); rmSync(tmp, { recursive: true, force: true }); mkdirSync(tmp);
     const c0 = Date.now();
     await renderFrames({ serveUrl, composition, outputDir: tmp, imageFormat: 'jpeg', jpegQuality: 95, concurrency, frameRange: [s0, s1], imageSequencePattern: '[frame].[ext]', onFrameUpdate: () => {}, onStart: () => {}, ...common });
-    for (const f of readdirSync(tmp)) { const m = f.match(/^(\d+)\.jpe?g$/); if (m) renameSync(path.join(tmp, f), path.join(dir, String(Number(m[1])).padStart(4, '0') + '.jpg')); }
-    rmSync(tmp, { recursive: true, force: true });
+    keep(tmp);
     console.log(`  frames ${s0}–${s1} (${((Date.now() - c0) / (s1 - s0 + 1) / 1000).toFixed(1)} s/frame)`);
   }
   const stem = path.join(ROOT, 'public/audio/tapfour-connect.wav');
