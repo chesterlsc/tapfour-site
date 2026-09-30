@@ -5,6 +5,7 @@ import { useThree } from '@react-three/fiber';
 import { useTexture, PerspectiveCamera } from '@react-three/drei';
 import { continueRender, delayRender, staticFile, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import { easeIO, clamp } from '../brand';
+import { shot, ShotId } from '../timeline';
 
 /* ---------- shapes ---------- */
 export function roundedRect(w: number, h: number, rTop: number, rBottom = rTop, cx = 0, cy = 0) {
@@ -57,6 +58,14 @@ const loadImg = (src: string) => {
   return imgCache.get(src)!;
 };
 export const screenSrc = (dir: string, frame: number) => staticFile(`screens/${dir}/${String(Math.max(0, frame)).padStart(4, '0')}.jpg`);
+// Each screen sequence is as long as its shot, but a shot keeps playing through the dissolve into the next one,
+// so hold the last rendered frame instead of requesting frames past the end (404 → blank screen in a fresh tab).
+const SCREEN_SHOT: Record<string, ShotId> = { tap: 'tap', scan: 'scan', order: 'order', 'order-tablet': 'order', dash: 'owner', 'setup-phone': 'setup', 'setup-tablet': 'setup' };
+export function useScreen(dir: string, frame: number) {
+  const { fps } = useVideoConfig();
+  const s = shot(SCREEN_SHOT[dir]), last = Math.round((s.end - s.start) * fps) - 1;
+  return useScreenTexture(screenSrc(dir, Math.min(last, frame)), screenSrc(dir, Math.min(last, frame + 1)));
+}
 export function useScreenTexture(src: string | null, next?: string | null) {
   const { advance } = useThree();
   const tex = useMemo(() => { const t = new THREE.Texture(); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; return t; }, []);

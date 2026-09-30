@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { Sequence, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Scene3D } from '../three/Scene';
-import { Stand, Phone, Tablet, TabletStand, STAND, PHONE, TABLET, standPoint, ART, drift, tween, useScreenTexture, screenSrc, LIME } from '../three/kit';
+import { Stand, Phone, Tablet, TabletStand, STAND, PHONE, TABLET, standPoint, ART, drift, tween, useScreen, LIME } from '../three/kit';
 import { DarkStudio, Post } from '../three/studios';
 import { CamAt, VF_STAND_RY, qrWorld } from './Stills';
 import { SUPERS, BEATS, ShotId } from '../timeline';
@@ -65,7 +65,7 @@ const Ripple: React.FC<{ t: number; at: number; pos: THREE.Vector3; quat: THREE.
 const TapScene: React.FC = () => {
   const { t, f } = useLocal();
   const B = BEATS.tap;
-  const tex = useScreenTexture(screenSrc('tap', f), screenSrc('tap', f + 1));
+  const tex = useScreen('tap', f);
   const P = useMemo(() => {
     const tilt = STAND.TILT;
     const u = V(0, Math.cos(tilt), -Math.sin(tilt)), n = V(0, Math.sin(tilt), Math.cos(tilt)), r = V(1, 0, 0);
@@ -129,7 +129,7 @@ export const vfPose = (t: number) => {
 const ScanScene: React.FC = () => {
   const { t, f } = useLocal();
   const B = BEATS.scan;
-  const tex = useScreenTexture(screenSrc('scan', f), screenSrc('scan', f + 1));
+  const tex = useScreen('scan', f);
   const vf = vfPose(t);
   // phone: back camera looks at the QR; its screen faces us. After the menu opens, it tilts toward the viewer.
   const back = vf.target.clone().sub(vf.pos).normalize();
@@ -159,7 +159,7 @@ export const ShotScan: React.FC = () => <Scene3D overlay={<Supers id="scan" />}>
 /* ======================= 5 · Table ordering — the guest's phone, then the staff tablet ======================= */
 const GuestPhone: React.FC<{ offset: number; late?: boolean }> = ({ offset, late }) => {
   const { t, f } = useLocal(offset);
-  const tex = useScreenTexture(screenSrc('order', f), screenSrc('order', f + 1));
+  const tex = useScreen('order', f);
   const lt = t - offset;
   const tiltBack = THREE.MathUtils.degToRad(30);
   const P0 = V(0, 19, 14);
@@ -184,7 +184,7 @@ const GuestPhone: React.FC<{ offset: number; late?: boolean }> = ({ offset, late
 const counterTablet = { pos: V(6, 12.6, -0.6), rot: new THREE.Euler(-0.36, 0, 0) };
 const CounterTablet: React.FC<{ offset: number; dir: string; keys: [number, THREE.Vector3, THREE.Vector3][]; focusOn?: THREE.Vector3 }> = ({ offset, dir, keys, focusOn }) => {
   const { t, f } = useLocal(offset);
-  const tex = useScreenTexture(screenSrc(dir, f), screenSrc(dir, f + 1));
+  const tex = useScreen(dir, f);
   const lt = t - offset;
   let pos = keys[0][1], target = keys[0][2];
   for (let i = 0; i < keys.length - 1; i++) {
@@ -247,7 +247,7 @@ const Chip: React.FC<{ text: string; at: number; out: number; x: number; y: numb
 };
 const SetupPhone: React.FC = () => {
   const { t, f } = useLocal();
-  const tex = useScreenTexture(screenSrc('setup-phone', f), screenSrc('setup-phone', f + 1));
+  const tex = useScreen('setup-phone', f);
   const k = tween(t, 0, 6.6, 0, 1, easeIO);
   const pos = V(0, 19 + Math.sin(t * 0.9) * 0.25, 0);
   const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.05, 0.3 - k * 0.42, 0.0));
@@ -263,7 +263,7 @@ const SetupPhone: React.FC = () => {
 };
 const SetupTablet: React.FC<{ offset: number }> = ({ offset }) => {
   const { t, f } = useLocal(offset);
-  const tex = useScreenTexture(screenSrc('setup-tablet', f), screenSrc('setup-tablet', f + 1));
+  const tex = useScreen('setup-tablet', f);
   const lt = t - offset;
   const k = tween(lt, 0, 3.4, 0, 1, easeIO);
   const pos = V(5, 21, 0);
