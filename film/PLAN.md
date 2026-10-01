@@ -13,8 +13,8 @@ Everything lives in `film/`, a Remotion (React/TS) project.
 | `public/art/r-*.jpg` | The four supplied product renders (black and white, Review and Review + Menu). They are the reference the 3D stand is matched to, the opening plate, and the photos on the Google Business Profile. |
 | `capture/*` | Runs the real platform Worker locally with fictional seed data. Playwright then captures the real UI at 3× device scale. |
 | `audio/*` | Original synthesized sound design and music bed (Python + numpy). |
-| `render.mjs` | Renders the viewfinder pre-pass, the device screens, then the film and the audio stem. `--scale 2` gives 4K and `--fps 60` gives 60 fps with no layout changes. `--shot <id>` renders a single shot. |
-| `storyboard.mjs`, `qa.mjs` | The contact sheet (`out/storyboard.png`) and QA stills. |
+| `render.mjs` | Renders the viewfinder pre-pass, the device screens, then the film and the audio stem. `--scale 2` gives 4K and `--fps 60` gives 60 fps with no layout changes. `--shot <id>` renders a single shot. The film renders into `out/frames/film/` in 150-frame chunks, and a stopped run picks up at the first missing frame (finished frames of an interrupted chunk are kept). To re-render part of the film, delete those frames and run it again. With software GL on 4 cores the 3D shots take 6–12 s a frame, so the full 1080p film takes about 5 hours. |
+| `storyboard.mjs`, `qa.mjs`, `stills.mjs` | The contact sheet (`out/storyboard.png`), QA stills, and single look-dev stills (`node stills.mjs <dir> Shot-order:360`). |
 
 **Build, in order:**
 
